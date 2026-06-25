@@ -7,6 +7,7 @@ import { initObstacles } from './obstacles.js'
 import { checkCollisions } from './collision.js'
 import { initHud, updateHud, showScreen } from './hud.js'
 import { initCollectibles } from './collectibles.js'
+import { calcProximityDelta, initDrone } from './drone.js'
 
 // --- Renderer ---
 const renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -52,6 +53,8 @@ function makeGameState(skinColor = 'CYAN') {
 let gameState = makeGameState()
 let playerApi = initPlayer(scene, gameState.skinColor)
 let obstacleApi = initObstacles(scene)
+const droneApi = initDrone(scene)
+let captureTriggered = false
 
 initHud()
 showScreen('TITLE', gameState)
@@ -87,6 +90,8 @@ window.addEventListener('game-restart', () => {
   scene.remove(playerApi.group)
   obstacleApi.reset()
   collectibleApi.reset()
+  droneApi.reset()
+  captureTriggered = false
   gameState = makeGameState(gameState.skinColor)
   gameState.powerUp = null
   playerApi = initPlayer(scene, gameState.skinColor)
@@ -120,12 +125,31 @@ renderer.setAnimationLoop(() => {
       } else {
         gameState.hp -= 1
         gameState.player.invincibleTimer = INVINCIBLE_DURATION
-        gameState.droneProximity = Math.min(1, gameState.droneProximity + 0.3)
         if (gameState.hp <= 0) {
           gameState.status = 'GAME_OVER'
           showScreen('GAME_OVER', gameState)
         }
       }
+    }
+
+    const evaded = !hitObstacle && gameState.player.action === 'RUNNING' && gameState.distance > 5
+    const proxDelta = calcProximityDelta({
+      hitObstacle,
+      evaded,
+      overdrive: gameState.powerUp?.type === 'OVERDRIVE',
+    }, delta)
+    gameState.droneProximity = Math.max(0, Math.min(1, gameState.droneProximity + proxDelta))
+
+    droneApi.update(delta, gameState)
+    droneApi.updateCapture(delta)
+
+    if (gameState.droneProximity >= 1 && !captureTriggered) {
+      captureTriggered = true
+      gameState.hp = 0
+      droneApi.triggerCapture(camera, gameState, () => {
+        gameState.status = 'GAME_OVER'
+        showScreen('GAME_OVER', gameState)
+      })
     }
 
     updateHud(gameState)

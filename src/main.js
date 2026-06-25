@@ -59,7 +59,7 @@ const particleApi = initParticles(scene)
 let captureTriggered = false
 
 initHud()
-showScreen('TITLE', gameState)
+showScreen('TITLE', gameState, (skin) => { gameState.skinColor = skin })
 
 // --- Input ---
 initInput(action => {

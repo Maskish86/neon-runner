@@ -8,6 +8,7 @@ import { checkCollisions } from './collision.js'
 import { initHud, updateHud, showScreen } from './hud.js'
 import { initCollectibles } from './collectibles.js'
 import { calcProximityDelta, initDrone } from './drone.js'
+import { initParticles } from './particles.js'
 
 // --- Renderer ---
 const renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -54,6 +55,7 @@ let gameState = makeGameState()
 let playerApi = initPlayer(scene, gameState.skinColor)
 let obstacleApi = initObstacles(scene)
 const droneApi = initDrone(scene)
+const particleApi = initParticles(scene)
 let captureTriggered = false
 
 initHud()
@@ -91,6 +93,7 @@ window.addEventListener('game-restart', () => {
   obstacleApi.reset()
   collectibleApi.reset()
   droneApi.reset()
+  particleApi.reset()
   captureTriggered = false
   gameState = makeGameState(gameState.skinColor)
   gameState.powerUp = null
@@ -117,12 +120,17 @@ renderer.setAnimationLoop(() => {
     collectibleApi.update(delta, gameState)
 
     const { hitObstacle, hitCollectible } = checkCollisions(playerApi, obstacleApi, collectibleApi, gameState)
-    if (hitCollectible) collectibleApi.collect(hitCollectible, gameState)
+    if (hitCollectible) {
+      particleApi.burstCollect(hitCollectible.mesh.position.clone(),
+        hitCollectible.type === 'SHARD' ? 0x00ffff : 0xffcc00)
+      collectibleApi.collect(hitCollectible, gameState)
+    }
     if (hitObstacle) {
       if (gameState.powerUp?.type === 'SHIELD') {
         // SHIELD absorbs the hit — one-time use
         gameState.powerUp = null
       } else {
+        particleApi.burstHit(playerApi.group.position.clone())
         gameState.hp -= 1
         gameState.player.invincibleTimer = INVINCIBLE_DURATION
         if (gameState.hp <= 0) {
@@ -140,6 +148,7 @@ renderer.setAnimationLoop(() => {
     }, delta)
     gameState.droneProximity = Math.max(0, Math.min(1, gameState.droneProximity + proxDelta))
 
+    particleApi.update(delta, gameState, camera)
     droneApi.update(delta, gameState)
     droneApi.updateCapture(delta)
 

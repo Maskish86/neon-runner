@@ -3,7 +3,8 @@ import { initScene } from './scene.js'
 import { initPlayer } from './player.js'
 import { initInput } from './input.js'
 import { initObstacles } from './obstacles.js'
-import { JUMP_VELOCITY, SLIDE_DURATION } from './constants.js'
+import { JUMP_VELOCITY, SLIDE_DURATION, INVINCIBLE_DURATION } from './constants.js'
+import { checkCollisions } from './collision.js'
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -38,6 +39,7 @@ const gameState = {
 }
 const playerApi = initPlayer(scene, gameState.skinColor)
 const obstacleApi = initObstacles(scene)
+const collectibleApiStub = { getActive: () => [] }
 
 initInput(action => {
   if (gameState.status !== 'PLAYING') return
@@ -85,6 +87,15 @@ renderer.setAnimationLoop(() => {
   last = now
   playerApi.update(delta, gameState)
   obstacleApi.update(delta, gameState)
+  if (gameState.status === 'PLAYING') {
+    const { hitObstacle, hitCollectible } = checkCollisions(playerApi, obstacleApi, collectibleApiStub, gameState)
+    if (hitObstacle) {
+      gameState.hp -= 1
+      gameState.player.invincibleTimer = INVINCIBLE_DURATION
+      gameState.droneProximity = Math.min(1, gameState.droneProximity + 0.3)
+      if (gameState.hp <= 0) gameState.status = 'GAME_OVER'
+    }
+  }
   updateScene(delta, gameState.speed)
   renderer.render(scene, camera)
 })

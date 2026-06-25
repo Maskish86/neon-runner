@@ -92,6 +92,10 @@ export function initPlayer(scene, skinColor = 'CYAN') {
       p.yPos = 1.5
       p.yVelocity = 0
       group.position.y = 1.5
+    } else if (p.action !== 'JUMPING' && p.yPos > 0) {
+      // HOVER expired while airborne — begin falling
+      p.action = 'JUMPING'
+      p.yVelocity = 0
     } else if (p.action === 'JUMPING') {
       // --- Jump physics ---
       p.yVelocity += GRAVITY * delta

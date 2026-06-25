@@ -16,7 +16,7 @@ export const OBSTACLE_FACTORIES = {
     group.add(mesh)
     group.userData.type = 'HOLOGRAM_SIGN'
     group.userData.avoidWith = 'JUMP'
-    group.userData.hazardAABB = { minX: -1.2, maxX: 1.2, minY: 0.65, maxY: 2.15, minZ: -0.05, maxZ: 0.05 }
+    group.userData.hazardAABB = { minX: -0.9, maxX: 0.9, minY: 0.65, maxY: 1.9, minZ: -0.15, maxZ: 0.15 }
     return group
   },
 
@@ -25,11 +25,11 @@ export const OBSTACLE_FACTORIES = {
     const geo = new THREE.CylinderGeometry(0.15, 0.15, 2.6, 8)
     geo.rotateZ(Math.PI / 2)
     const mesh = new THREE.Mesh(geo, emissiveMat(0x004444, 0x00ffff))
-    mesh.position.y = 0.7  // low — player must slide
+    mesh.position.y = 1.2  // chest height — player must slide under
     group.add(mesh)
     group.userData.type = 'NEON_PIPE'
     group.userData.avoidWith = 'SLIDE'
-    group.userData.hazardAABB = { minX: -1.3, maxX: 1.3, minY: 0.55, maxY: 0.85, minZ: -0.15, maxZ: 0.15 }
+    group.userData.hazardAABB = { minX: -1.3, maxX: 1.3, minY: 0.95, maxY: 1.45, minZ: -0.15, maxZ: 0.15 }
     return group
   },
 

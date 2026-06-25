@@ -9,6 +9,7 @@ import { initHud, updateHud, showScreen } from './hud.js'
 import { initCollectibles } from './collectibles.js'
 import { calcProximityDelta, initDrone } from './drone.js'
 import { initParticles } from './particles.js'
+import { initAudio } from './audio.js'
 
 // --- Renderer ---
 const renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -57,6 +58,8 @@ let obstacleApi = initObstacles(scene)
 const droneApi = initDrone(scene)
 const particleApi = initParticles(scene)
 let captureTriggered = false
+
+const audioApi = initAudio()
 
 initHud()
 showScreen('TITLE', gameState, (skin) => { gameState.skinColor = skin })
@@ -123,6 +126,7 @@ renderer.setAnimationLoop(() => {
     if (hitCollectible) {
       particleApi.burstCollect(hitCollectible.mesh.position.clone(),
         hitCollectible.type === 'SHARD' ? 0x00ffff : 0xffcc00)
+      try { audioApi.play(hitCollectible.type === 'SHARD' ? 'collect' : 'powerup') } catch(e) {}
       collectibleApi.collect(hitCollectible, gameState)
     }
     if (hitObstacle) {
@@ -131,6 +135,7 @@ renderer.setAnimationLoop(() => {
         gameState.powerUp = null
       } else {
         particleApi.burstHit(playerApi.group.position.clone())
+        try { audioApi.play('hit') } catch(e) {}
         gameState.hp -= 1
         gameState.player.invincibleTimer = INVINCIBLE_DURATION
         if (gameState.hp <= 0) {
@@ -147,6 +152,7 @@ renderer.setAnimationLoop(() => {
       overdrive: gameState.powerUp?.type === 'OVERDRIVE',
     }, delta)
     gameState.droneProximity = Math.max(0, Math.min(1, gameState.droneProximity + proxDelta))
+    try { audioApi.play('drone_warn', gameState.droneProximity) } catch(e) {}
 
     particleApi.update(delta, gameState, camera)
     droneApi.update(delta, gameState)

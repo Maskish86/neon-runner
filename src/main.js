@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import { initScene } from './scene.js'
 import { initPlayer } from './player.js'
+import { initInput } from './input.js'
+import { JUMP_VELOCITY, SLIDE_DURATION } from './constants.js'
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -34,6 +36,39 @@ const gameState = {
   droneProximity: 0,
 }
 const playerApi = initPlayer(scene, gameState.skinColor)
+
+initInput(action => {
+  if (gameState.status !== 'PLAYING') return
+  const p = gameState.player
+  switch (action) {
+    case 'LEFT': {
+      const next = p.lane - 1
+      if (next < 0) break
+      if (p.action === 'LANE_SWITCH') { p.queuedLane = next; break }
+      p.targetLane = next; p.laneT = 0; p.action = 'LANE_SWITCH'
+      break
+    }
+    case 'RIGHT': {
+      const next = p.lane + 1
+      if (next > 2) break
+      if (p.action === 'LANE_SWITCH') { p.queuedLane = next; break }
+      p.targetLane = next; p.laneT = 0; p.action = 'LANE_SWITCH'
+      break
+    }
+    case 'JUMP':
+      if (p.action !== 'JUMPING') {
+        p.action = 'JUMPING'
+        p.yVelocity = JUMP_VELOCITY
+      }
+      break
+    case 'SLIDE':
+      if (p.action !== 'JUMPING' && p.action !== 'SLIDING') {
+        p.action = 'SLIDING'
+        p.slideTimer = SLIDE_DURATION
+      }
+      break
+  }
+})
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight

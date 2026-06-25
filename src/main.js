@@ -6,6 +6,7 @@ import { initInput } from './input.js'
 import { initObstacles } from './obstacles.js'
 import { checkCollisions } from './collision.js'
 import { initHud, updateHud, showScreen } from './hud.js'
+import { initCollectibles } from './collectibles.js'
 
 // --- Renderer ---
 const renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -30,7 +31,7 @@ window.addEventListener('resize', () => {
 
 // --- Modules ---
 const { updateScene } = initScene(scene)
-const collectibleApiStub = { getActive: () => [], update() {}, reset() {} }
+const collectibleApi = initCollectibles(scene)
 
 function makeGameState(skinColor = 'CYAN') {
   return {
@@ -85,7 +86,9 @@ initInput(action => {
 window.addEventListener('game-restart', () => {
   scene.remove(playerApi.group)
   obstacleApi.reset()
+  collectibleApi.reset()
   gameState = makeGameState(gameState.skinColor)
+  gameState.powerUp = null
   playerApi = initPlayer(scene, gameState.skinColor)
   gameState.status = 'PLAYING'
   showScreen('PLAYING', gameState)
@@ -106,15 +109,22 @@ renderer.setAnimationLoop(() => {
     updateScene(delta, gameState.speed)
     playerApi.update(delta, gameState)
     obstacleApi.update(delta, gameState)
+    collectibleApi.update(delta, gameState)
 
-    const { hitObstacle } = checkCollisions(playerApi, obstacleApi, collectibleApiStub, gameState)
+    const { hitObstacle, hitCollectible } = checkCollisions(playerApi, obstacleApi, collectibleApi, gameState)
+    if (hitCollectible) collectibleApi.collect(hitCollectible, gameState)
     if (hitObstacle) {
-      gameState.hp -= 1
-      gameState.player.invincibleTimer = INVINCIBLE_DURATION
-      gameState.droneProximity = Math.min(1, gameState.droneProximity + 0.3)
-      if (gameState.hp <= 0) {
-        gameState.status = 'GAME_OVER'
-        showScreen('GAME_OVER', gameState)
+      if (gameState.powerUp?.type === 'SHIELD') {
+        // SHIELD absorbs the hit — one-time use
+        gameState.powerUp = null
+      } else {
+        gameState.hp -= 1
+        gameState.player.invincibleTimer = INVINCIBLE_DURATION
+        gameState.droneProximity = Math.min(1, gameState.droneProximity + 0.3)
+        if (gameState.hp <= 0) {
+          gameState.status = 'GAME_OVER'
+          showScreen('GAME_OVER', gameState)
+        }
       }
     }
 

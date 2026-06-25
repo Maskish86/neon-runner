@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { initScene } from './scene.js'
 import { initPlayer } from './player.js'
 import { initInput } from './input.js'
+import { initObstacles } from './obstacles.js'
 import { JUMP_VELOCITY, SLIDE_DURATION } from './constants.js'
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -36,6 +37,7 @@ const gameState = {
   droneProximity: 0,
 }
 const playerApi = initPlayer(scene, gameState.skinColor)
+const obstacleApi = initObstacles(scene)
 
 initInput(action => {
   if (gameState.status !== 'PLAYING') return
@@ -82,6 +84,7 @@ renderer.setAnimationLoop(() => {
   const delta = Math.min((now - last) / 1000, 0.05)
   last = now
   playerApi.update(delta, gameState)
+  obstacleApi.update(delta, gameState)
   updateScene(delta, gameState.speed)
   renderer.render(scene, camera)
 })

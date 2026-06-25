@@ -61,11 +61,6 @@ export function initPlayer(scene, skinColor = 'CYAN') {
     return box3
   }
 
-  function setInvincible() {
-    // called by collision.js — sets timer directly on gameState.player
-    // The timer is ticked in update(); this is just a hook for external callers
-  }
-
   function update(delta, gs) {
     const p = gs.player
 
@@ -92,8 +87,13 @@ export function initPlayer(scene, skinColor = 'CYAN') {
       group.position.x = LANES[p.lane]
     }
 
-    // --- Jump physics ---
-    if (p.action === 'JUMPING') {
+    // --- HOVER lift ---
+    if (gs.powerUp?.type === 'HOVER' && p.action !== 'JUMPING') {
+      p.yPos = 1.5
+      p.yVelocity = 0
+      group.position.y = 1.5
+    } else if (p.action === 'JUMPING') {
+      // --- Jump physics ---
       p.yVelocity += GRAVITY * delta
       p.yPos += p.yVelocity * delta
       if (p.yPos <= 0) {
@@ -101,8 +101,10 @@ export function initPlayer(scene, skinColor = 'CYAN') {
         p.yVelocity = 0
         p.action = 'RUNNING'
       }
+      group.position.y = p.yPos
+    } else {
+      group.position.y = p.yPos
     }
-    group.position.y = p.yPos
 
     // --- Slide scale ---
     if (p.action === 'SLIDING') {
@@ -136,5 +138,5 @@ export function initPlayer(scene, skinColor = 'CYAN') {
     }
   }
 
-  return { group, update, getAABB, setInvincible }
+  return { group, update, getAABB }
 }

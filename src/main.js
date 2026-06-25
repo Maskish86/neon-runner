@@ -145,7 +145,7 @@ renderer.setAnimationLoop(() => {
       }
     }
 
-    const evaded = !hitObstacle && gameState.player.action === 'RUNNING' && gameState.distance > 5
+    const evaded = false  // passive decay + overdrive handles drone tension; per-frame signal overwhelmed delta
     const proxDelta = calcProximityDelta({
       hitObstacle,
       evaded,

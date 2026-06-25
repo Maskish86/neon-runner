@@ -16,6 +16,7 @@ export const OBSTACLE_FACTORIES = {
     group.add(mesh)
     group.userData.type = 'HOLOGRAM_SIGN'
     group.userData.avoidWith = 'JUMP'
+    group.userData.hazardAABB = { minX: -1.2, maxX: 1.2, minY: 0.65, maxY: 2.15, minZ: -0.05, maxZ: 0.05 }
     return group
   },
 
@@ -28,6 +29,7 @@ export const OBSTACLE_FACTORIES = {
     group.add(mesh)
     group.userData.type = 'NEON_PIPE'
     group.userData.avoidWith = 'SLIDE'
+    group.userData.hazardAABB = { minX: -1.3, maxX: 1.3, minY: 0.55, maxY: 0.85, minZ: -0.15, maxZ: 0.15 }
     return group
   },
 
@@ -41,6 +43,7 @@ export const OBSTACLE_FACTORIES = {
     group.add(mesh)
     group.userData.type = 'GAP'
     group.userData.avoidWith = 'JUMP'
+    group.userData.hazardAABB = { minX: -1.2, maxX: 1.2, minY: -10, maxY: 0.05, minZ: -1.5, maxZ: 1.5 }
     return group
   },
 
@@ -67,6 +70,7 @@ export const OBSTACLE_FACTORIES = {
     group.userData.avoidWith = 'SLIDE'  // beam at y=1.2 blocks running height; slide under
     group.userData.blinkTimer = 0
     group.userData.active = true
+    group.userData.hazardAABB = { minX: -1.1, maxX: 1.1, minY: 1.17, maxY: 1.23, minZ: -0.03, maxZ: 0.03 }
     return group
   },
 
@@ -81,6 +85,7 @@ export const OBSTACLE_FACTORIES = {
     group.userData.avoidWith = 'LANE'
     group.userData.patrolDir = 1
     group.userData.patrolSpeed = 2.5
+    group.userData.hazardAABB = { minX: -0.25, maxX: 0.25, minY: 0, maxY: 1.1, minZ: -0.2, maxZ: 0.2 }
     return group
   },
 }

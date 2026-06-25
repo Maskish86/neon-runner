@@ -11,12 +11,12 @@ const MIN_INTERVAL = 0.6
 export function initObstacles(scene) {
   const pool = []
   for (let i = 0; i < POOL_SIZE; i++) {
-    // Start with all types pre-built, hidden
+    // Pre-build pool cycling through types — no mesh rebuilds on spawn
     const type = OBSTACLE_TYPES[i % OBSTACLE_TYPES.length]
     const obj = OBSTACLE_FACTORIES[type]()
     obj.visible = false
     scene.add(obj)
-    pool.push({ obj, active: false })
+    pool.push({ obj, active: false, type })
   }
 
   let spawnTimer = 1.0
@@ -29,29 +29,36 @@ export function initObstacles(scene) {
       type: p.obj.userData.type,
       avoidWith: p.obj.userData.avoidWith,
       getAABB() {
-        box3.setFromObject(p.obj)
+        const hz = p.obj.userData.hazardAABB
+        const pos = p.obj.position
+        box3.min.set(pos.x + hz.minX, hz.minY, pos.z + hz.minZ)
+        box3.max.set(pos.x + hz.maxX, hz.maxY, pos.z + hz.maxZ)
         return box3
       },
     }))
   }
 
-  function spawnOne(speed) {
-    const entry = pool.find(p => !p.active)
-    if (!entry) return
-    // Pick random type
+  function spawnOne() {
     const type = OBSTACLE_TYPES[Math.floor(Math.random() * OBSTACLE_TYPES.length)]
-    // Re-build to reset state (patrol bot direction etc)
-    scene.remove(entry.obj)
-    const newObj = OBSTACLE_FACTORIES[type]()
-    newObj.visible = true
-    scene.add(newObj)
-    entry.obj = newObj
+    // Find free slot with matching type, fall back to any free slot
+    let entry = pool.find(p => !p.active && p.type === type)
+             ?? pool.find(p => !p.active)
+    if (!entry) return
 
-    // Pick lane — avoid same lane twice in a row for non-patrol
+    // Reset per-spawn state without rebuilding the mesh
+    if (entry.obj.userData.type === 'PATROL_BOT') {
+      entry.obj.userData.patrolDir = Math.random() > 0.5 ? 1 : -1
+    }
+    if (entry.obj.userData.type === 'LASER_GATE') {
+      entry.obj.userData.blinkTimer = 0
+    }
+
+    // Pick lane — avoid same lane twice in a row
     let lane
     do { lane = Math.floor(Math.random() * 3) } while (lane === lastLane && Math.random() > 0.3)
     lastLane = lane
     entry.obj.position.set(LANES[lane], 0, SPAWN_Z)
+    entry.obj.visible = true
     entry.active = true
   }
 
@@ -63,7 +70,7 @@ export function initObstacles(scene) {
     const interval = Math.max(MIN_INTERVAL, BASE_INTERVAL - gameState.distance * 0.0003)
     spawnTimer -= delta
     if (spawnTimer <= 0) {
-      spawnOne(speed)
+      spawnOne()
       spawnTimer = interval + (Math.random() - 0.5) * 0.4
     }
 

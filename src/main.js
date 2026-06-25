@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { initScene } from './scene.js'
+import { initPlayer } from './player.js'
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -19,6 +20,21 @@ const { updateScene } = initScene(scene)
 const ambient = new THREE.AmbientLight(0x221133, 2)
 scene.add(ambient)
 
+const gameState = {
+  status: 'PLAYING',
+  score: 0, distance: 0, speed: 8, hp: 3,
+  skinColor: 'CYAN',
+  player: {
+    lane: 1, targetLane: 1, laneT: 1,
+    action: 'RUNNING', queuedLane: null,
+    yPos: 0, yVelocity: 0,
+    slideTimer: 0, invincibleTimer: 0,
+  },
+  powerUp: null,
+  droneProximity: 0,
+}
+const playerApi = initPlayer(scene, gameState.skinColor)
+
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
@@ -30,6 +46,7 @@ renderer.setAnimationLoop(() => {
   const now = performance.now()
   const delta = Math.min((now - last) / 1000, 0.05)
   last = now
-  updateScene(delta, 8)
+  playerApi.update(delta, gameState)
+  updateScene(delta, gameState.speed)
   renderer.render(scene, camera)
 })

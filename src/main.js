@@ -51,6 +51,7 @@ function makeGameState(skinColor = 'CYAN') {
       slideTimer: 0, invincibleTimer: 0,
     },
     powerUp: null,
+    droneBeamActive: false,
     combo: 0,
     comboTimer: 0,
     timeScale: 1.0,

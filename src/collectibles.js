@@ -150,7 +150,7 @@ export function initCollectibles(scene) {
   function update(delta, gameState) {
     if (gameState.status !== 'PLAYING') return
 
-    gameState.comboTimer += delta
+    if (!gameState.droneBeamActive) gameState.comboTimer += delta
     if (gameState.comboTimer > 1.5) {
       gameState.combo = 0
       gameState.comboTimer = 0

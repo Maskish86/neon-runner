@@ -91,6 +91,7 @@ export function initDrone(scene) {
   function update(delta, gameState) {
     if (gameState.status !== 'PLAYING') return { beamHit: false, warningStarted: false, beamType }
 
+    gameState.droneBeamActive = phase === 'WARNING' || phase === 'BEAM'
     droneGroup.children.filter(c => c.name === 'rotor').forEach(r => r.rotation.y += delta * 20)
 
     if (phase === 'IDLE') {

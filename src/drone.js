@@ -3,9 +3,9 @@ import { BEAM_LOW_Y, BEAM_HIGH_Y } from './constants.js'
 
 export function pickBeamInterval(distance) {
   let min, max
-  if (distance < 1000)      { min = 10; max = 15 }
-  else if (distance < 3000) { min = 7;  max = 12 }
-  else                      { min = 5;  max = 9  }
+  if (distance < 1000)      { min = 40; max = 60 }
+  else if (distance < 3000) { min = 28; max = 48 }
+  else                      { min = 20; max = 36 }
   return min + Math.random() * (max - min)
 }
 
@@ -65,7 +65,7 @@ export function initDrone(scene) {
   let phase = 'IDLE'
   let phaseTimer = 0
   let attackTimer = 0
-  let nextInterval = 12   // first beam at 12s
+  let nextInterval = 48   // first beam at 48s
   let beamType = 'LOW'    // alternates each attack
 
   function startWarning() {
@@ -122,6 +122,7 @@ export function initDrone(scene) {
       beam.material.emissiveIntensity = 3 + Math.sin(phaseTimer * 40) * 1.5
 
       const beamHit = gameState.player.invincibleTimer <= 0
+        && gameState.powerUp?.type !== 'HOVER'
         && beamHitsPlayer(beamType, gameState.player.yPos, gameState.player.action)
 
       if (phaseTimer <= 0) {

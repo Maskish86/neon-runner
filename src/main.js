@@ -171,6 +171,7 @@ renderer.setAnimationLoop(() => {
         gameState.combo = 0
         gameState.comboTimer = 0
         if (gameState.hp <= 0) {
+          droneApi.reset()
           gameState.status = 'GAME_OVER'
           showScreen('GAME_OVER', gameState)
         }
@@ -183,18 +184,26 @@ renderer.setAnimationLoop(() => {
       try { audioApi.play('beam_warn', beamType) } catch(e) {}
     }
     if (beamHit) {
-      particleApi.burstHit(playerApi.group.position.clone())
-      try { audioApi.play('beam_hit') } catch(e) {}
-      gameState.hp -= 1
-      gameState.player.invincibleTimer = INVINCIBLE_DURATION
-      gameState.timeScale = 0.25
-      gameState.slowTimer = 0.2
-      gameState.cameraShake = { intensity: 0.15, duration: 0.3 }
-      gameState.combo = 0
-      gameState.comboTimer = 0
-      if (gameState.hp <= 0) {
-        gameState.status = 'GAME_OVER'
-        showScreen('GAME_OVER', gameState)
+      if (gameState.powerUp?.type === 'SHIELD') {
+        // SHIELD absorbs the beam hit — one-time use, grant invincibility so same beam can't re-hit
+        gameState.powerUp = null
+        gameState.player.invincibleTimer = INVINCIBLE_DURATION
+        gameState.cameraShake = { intensity: 0.08, duration: 0.15 }
+      } else {
+        particleApi.burstHit(playerApi.group.position.clone())
+        try { audioApi.play('beam_hit') } catch(e) {}
+        gameState.hp -= 1
+        gameState.player.invincibleTimer = INVINCIBLE_DURATION
+        gameState.timeScale = 0.25
+        gameState.slowTimer = 0.2
+        gameState.cameraShake = { intensity: 0.15, duration: 0.3 }
+        gameState.combo = 0
+        gameState.comboTimer = 0
+        if (gameState.hp <= 0) {
+          droneApi.reset()
+          gameState.status = 'GAME_OVER'
+          showScreen('GAME_OVER', gameState)
+        }
       }
     }
 

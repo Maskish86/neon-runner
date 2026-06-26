@@ -10,44 +10,38 @@ function emissiveMat(color, emissive, intensity = 1.5) {
 export const OBSTACLE_FACTORIES = {
   HOLOGRAM_SIGN() {
     const group = new THREE.Group()
+    // Panel extends from ground to top (y=0 to y=2.15)
     const panel = new THREE.Mesh(
-      new THREE.BoxGeometry(2.4, 1.5, 0.1),
+      new THREE.BoxGeometry(2.4, 2.15, 0.1),
       emissiveMat(0x003366, 0x0066ff)
     )
-    panel.position.y = 1.4
+    panel.position.y = 1.075
     panel.name = 'signPanel'
     group.add(panel)
     // Frame bars
     const frameMat = emissiveMat(0x002244, 0x00aaff, 2.5)
-    ;[2.15, 0.65].forEach(y => {
+    ;[2.15, 0].forEach(y => {
       const e = new THREE.Mesh(new THREE.BoxGeometry(2.45, 0.05, 0.05), frameMat)
       e.position.set(0, y, 0.06)
       group.add(e)
     })
     ;[-1.2, 1.2].forEach(x => {
-      const e = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.55, 0.05), frameMat)
-      e.position.set(x, 1.4, 0.06)
+      const e = new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.2, 0.05), frameMat)
+      e.position.set(x, 1.075, 0.06)
       group.add(e)
     })
-    // Text lines
+    // Text lines (upper portion of the wall)
     const textMat = emissiveMat(0x002233, 0x00ccff, 1.2)
     ;[1.7, 1.4, 1.1].forEach(y => {
       const line = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.06, 0.05), textMat)
       line.position.set(0, y, 0.08)
       group.add(line)
     })
-    // Ground support poles
-    const poleMat = emissiveMat(0x002244, 0x00aaff, 1.5)
-    ;[-1.0, 1.0].forEach(x => {
-      const pole = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.65, 0.07), poleMat)
-      pole.position.set(x, 0.325, 0)
-      group.add(pole)
-    })
     group.userData.type = 'HOLOGRAM_SIGN'
     group.userData.avoidWith = 'JUMP'
     group.userData.time = 0
     group.userData.glitchTimer = 1.2 + Math.random() * 0.8
-    group.userData.hazardAABB = { minX: -0.9, maxX: 0.9, minY: 0.65, maxY: 1.9, minZ: -0.15, maxZ: 0.15 }
+    group.userData.hazardAABB = { minX: -0.9, maxX: 0.9, minY: 0, maxY: 1.9, minZ: -0.15, maxZ: 0.15 }
     return group
   },
 

@@ -8,6 +8,8 @@ export const JUMP_VELOCITY = 10
 export const GRAVITY = -22
 export const SLIDE_DURATION = 0.6
 export const INVINCIBLE_DURATION = 0.8
+export const BEAM_LOW_Y = 0.5
+export const BEAM_HIGH_Y = 1.5
 
 export const SKIN_COLORS = {
   CYAN:    { emissive: 0x00ffff, main: 0x004466 },

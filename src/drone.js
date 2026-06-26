@@ -1,4 +1,19 @@
 import * as THREE from 'three'
+import { BEAM_LOW_Y, BEAM_HIGH_Y } from './constants.js'
+
+export function pickBeamInterval(distance) {
+  let min, max
+  if (distance < 1000)      { min = 10; max = 15 }
+  else if (distance < 3000) { min = 7;  max = 12 }
+  else                      { min = 5;  max = 9  }
+  return min + Math.random() * (max - min)
+}
+
+export function beamHitsPlayer(beamType, playerYPos, playerAction) {
+  if (beamType === 'LOW')  return playerYPos < BEAM_LOW_Y
+  if (beamType === 'HIGH') return playerAction !== 'SLIDING'
+  return false
+}
 
 // Pure function — testable without Three.js scene
 export function calcProximityDelta({ hitObstacle, evaded, overdrive }, delta) {

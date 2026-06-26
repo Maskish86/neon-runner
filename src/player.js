@@ -18,6 +18,20 @@ function buildHumanoid(colors) {
   head.position.y = 1.6
   head.name = 'head'
 
+  const visor = new THREE.Mesh(
+    new THREE.BoxGeometry(0.35, 0.08, 0.05),
+    new THREE.MeshStandardMaterial({
+      color: colors.emissive,
+      emissive: colors.emissive,
+      emissiveIntensity: 3,
+      roughness: 0,
+      metalness: 1,
+    })
+  )
+  visor.position.set(0, -0.04, 0.22)
+  visor.name = 'visor'
+  head.add(visor)
+
   const torso = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.3), mat())
   torso.position.y = 1.1
   torso.name = 'torso'
@@ -37,6 +51,23 @@ function buildHumanoid(colors) {
   rLeg.name = 'rLeg'
 
   group.add(head, torso, lArm, rArm, lLeg, rLeg)
+
+  const bubble = new THREE.Mesh(
+    new THREE.SphereGeometry(0.9, 12, 12),
+    new THREE.MeshStandardMaterial({
+      color: 0x0044ff,
+      emissive: 0x0088ff,
+      emissiveIntensity: 1,
+      transparent: true,
+      opacity: 0.25,
+      depthWrite: false,
+    })
+  )
+  bubble.position.y = 0.9
+  bubble.name = 'shieldBubble'
+  bubble.visible = false
+  group.add(bubble)
+
   return group
 }
 
@@ -130,16 +161,30 @@ export function initPlayer(scene, skinColor = 'CYAN') {
       if (p.invincibleTimer <= 0) group.visible = true
     }
 
-    // --- Leg animation ---
+    // --- Leg animation + arm swing ---
     if (gs.status === 'PLAYING') {
       legAngle += delta * 8
       const lLeg = group.getObjectByName('lLeg')
       const rLeg = group.getObjectByName('rLeg')
+      const lArm = group.getObjectByName('lArm')
+      const rArm = group.getObjectByName('rArm')
       if (lLeg && rLeg) {
         lLeg.rotation.x = Math.sin(legAngle) * 0.5
         rLeg.rotation.x = -Math.sin(legAngle) * 0.5
       }
+      if (lArm && rArm) {
+        if (p.action === 'SLIDING') {
+          lArm.rotation.x = -0.8
+          rArm.rotation.x = -0.8
+        } else {
+          lArm.rotation.x = Math.sin(legAngle) * 0.4
+          rArm.rotation.x = -Math.sin(legAngle) * 0.4
+        }
+      }
     }
+    // --- Shield bubble ---
+    const bubble = group.getObjectByName('shieldBubble')
+    if (bubble) bubble.visible = gs.powerUp?.type === 'SHIELD'
   }
 
   return { group, update, getAABB }

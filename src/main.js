@@ -49,6 +49,11 @@ function makeGameState(skinColor = 'CYAN') {
     },
     powerUp: null,
     droneProximity: 0,
+    combo: 1,
+    comboTimer: 0,
+    timeScale: 1.0,
+    slowTimer: 0,
+    cameraShake: { intensity: 0, duration: 0 },
   }
 }
 
@@ -109,8 +114,18 @@ window.addEventListener('game-restart', () => {
 let last = performance.now()
 renderer.setAnimationLoop(() => {
   const now = performance.now()
-  const delta = Math.min((now - last) / 1000, 0.05)
+  const realDelta = Math.min((now - last) / 1000, 0.05)
   last = now
+
+  // slow-mo timer counts down in real time, not game time
+  if (gameState.slowTimer > 0) {
+    gameState.slowTimer -= realDelta
+    if (gameState.slowTimer <= 0) {
+      gameState.slowTimer = 0
+      gameState.timeScale = 1.0
+    }
+  }
+  const delta = realDelta * gameState.timeScale
 
   if (gameState.status === 'PLAYING') {
     gameState.distance += gameState.speed * delta

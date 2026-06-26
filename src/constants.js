@@ -1,6 +1,6 @@
 // src/constants.js — created in Task 1, used everywhere
 export const LANES = [-2.5, 0, 2.5]      // world X positions
-export const BASE_SPEED = 8               // units/sec
+export const BASE_SPEED = 12              // units/sec
 export const MAX_SPEED = 22
 export const ACCEL_FACTOR = 0.0008        // speed += distance * ACCEL_FACTOR per frame
 export const LANE_SWITCH_DURATION = 0.15  // seconds

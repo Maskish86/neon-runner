@@ -48,6 +48,7 @@ export function initObstacles(scene) {
     // Reset per-spawn state without rebuilding the mesh
     if (entry.obj.userData.type === 'PATROL_BOT') {
       entry.obj.userData.patrolDir = Math.random() > 0.5 ? 1 : -1
+      entry.obj.userData.time = 0
     }
     if (entry.obj.userData.type === 'LASER_GATE') {
       entry.obj.userData.blinkTimer = 0
@@ -91,9 +92,15 @@ export function initObstacles(scene) {
 
       // Patrol bot lateral movement
       if (obj.userData.type === 'PATROL_BOT') {
+        obj.userData.time += delta
         obj.position.x += obj.userData.patrolDir * obj.userData.patrolSpeed * delta
         if (obj.position.x > LANES[2] + 1) obj.userData.patrolDir = -1
         if (obj.position.x < LANES[0] - 1) obj.userData.patrolDir = 1
+        const botBody = obj.getObjectByName('botBody')
+        const botHead = obj.getObjectByName('botHead')
+        if (botBody) botBody.position.y = 0.5 + 0.08 * Math.sin(obj.userData.time * 5)
+        if (botHead) botHead.position.y = (botBody ? botBody.position.y : 0.5) + 0.5
+        obj.rotation.z = obj.userData.patrolDir * 0.06 * Math.sin(obj.userData.time * 5)
       }
 
       // Recycle

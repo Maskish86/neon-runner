@@ -88,14 +88,33 @@ export const OBSTACLE_FACTORIES = {
     const group = new THREE.Group()
     const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.4), emissiveMat(0x222200, 0xffcc00, 1.5))
     body.position.y = 0.5
+    body.name = 'botBody'
     const head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.25, 0.3), emissiveMat(0x333300, 0xffcc00, 2))
     head.position.y = 1.0
-    group.add(body, head)
+    head.name = 'botHead'
+    // Eyes
+    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x440000, emissive: 0xff2200, emissiveIntensity: 3 })
+    const eyeGeo = new THREE.SphereGeometry(0.05, 6, 6)
+    const lEye = new THREE.Mesh(eyeGeo, eyeMat); lEye.position.set(-0.07, 1.02, 0.16)
+    const rEye = new THREE.Mesh(eyeGeo, eyeMat.clone()); rEye.position.set(0.07, 1.02, 0.16)
+    // Antenna
+    const antennaShaft = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.02, 0.02, 0.3, 6),
+      emissiveMat(0x222200, 0xffcc00, 2)
+    )
+    antennaShaft.position.set(0, 1.4, 0)
+    const antennaTip = new THREE.Mesh(
+      new THREE.SphereGeometry(0.04, 6, 6),
+      emissiveMat(0x333300, 0xffff00, 3)
+    )
+    antennaTip.position.set(0, 1.58, 0)
+    group.add(body, head, lEye, rEye, antennaShaft, antennaTip)
     group.userData.type = 'PATROL_BOT'
     group.userData.avoidWith = 'LANE'
     group.userData.patrolDir = 1
     group.userData.patrolSpeed = 2.5
-    group.userData.hazardAABB = { minX: -0.25, maxX: 0.25, minY: 0, maxY: 1.1, minZ: -0.2, maxZ: 0.2 }
+    group.userData.time = 0
+    group.userData.hazardAABB = { minX: -0.25, maxX: 0.25, minY: 0, maxY: 1.35, minZ: -0.2, maxZ: 0.2 }
     return group
   },
 }

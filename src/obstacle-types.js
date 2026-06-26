@@ -64,7 +64,7 @@ export const OBSTACLE_FACTORIES = {
     const bracketMat = emissiveMat(0x003333, 0x006666, 1)
     ;[-0.8, 0.8].forEach(x => {
       const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5, 0.06), bracketMat)
-      bracket.position.set(x, 1.7, 0)
+      bracket.position.set(x, 0.95, 0)
       group.add(bracket)
     })
     group.userData.type = 'NEON_PIPE'
@@ -156,7 +156,7 @@ export const OBSTACLE_FACTORIES = {
     const eyeMat = new THREE.MeshStandardMaterial({ color: 0x440000, emissive: 0xff2200, emissiveIntensity: 3 })
     const eyeGeo = new THREE.SphereGeometry(0.05, 6, 6)
     const lEye = new THREE.Mesh(eyeGeo, eyeMat); lEye.position.set(-0.07, 1.02, 0.16)
-    const rEye = new THREE.Mesh(eyeGeo, eyeMat.clone()); rEye.position.set(0.07, 1.02, 0.16)
+    const rEye = new THREE.Mesh(eyeGeo, eyeMat); rEye.position.set(0.07, 1.02, 0.16)
     // Antenna
     const antennaShaft = new THREE.Mesh(
       new THREE.CylinderGeometry(0.02, 0.02, 0.3, 6),

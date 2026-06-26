@@ -99,7 +99,7 @@ export function initObstacles(scene) {
         const beam = obj.getObjectByName('beam')
         const beam2 = obj.getObjectByName('beam2')
         if (beam) beam.visible = Math.sin(obj.userData.blinkTimer * 6) > 0
-        if (beam2) beam2.visible = beam ? !beam.visible : false
+        if (beam2) beam2.visible = beam ? beam.visible : false
       }
 
       // Hologram sign flicker

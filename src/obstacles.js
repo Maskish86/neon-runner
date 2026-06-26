@@ -53,6 +53,10 @@ export function initObstacles(scene) {
     if (entry.obj.userData.type === 'LASER_GATE') {
       entry.obj.userData.blinkTimer = 0
     }
+    if (entry.obj.userData.type === 'HOLOGRAM_SIGN') {
+      entry.obj.userData.time = 0
+      entry.obj.userData.glitchTimer = 1.2 + Math.random() * 0.8
+    }
 
     // Pick lane — avoid same lane twice in a row
     let lane
@@ -88,6 +92,21 @@ export function initObstacles(scene) {
         obj.userData.blinkTimer += delta
         const beam = obj.getObjectByName('beam')
         if (beam) beam.visible = Math.sin(obj.userData.blinkTimer * 6) > 0
+      }
+
+      // Hologram sign flicker
+      if (obj.userData.type === 'HOLOGRAM_SIGN') {
+        obj.userData.time += delta
+        obj.userData.glitchTimer -= delta
+        const panel = obj.getObjectByName('signPanel')
+        if (panel) {
+          if (obj.userData.glitchTimer <= 0) {
+            panel.material.emissiveIntensity = 0.05
+            obj.userData.glitchTimer = 1.2 + Math.random() * 0.8
+          } else {
+            panel.material.emissiveIntensity = 1.5 + 0.4 * Math.sin(obj.userData.time * 6)
+          }
+        }
       }
 
       // Patrol bot lateral movement

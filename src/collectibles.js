@@ -140,9 +140,6 @@ export function initCollectibles(scene) {
       // Power-up
       const duration = POWERUP_DURATIONS[item.type]
       gameState.powerUp = { type: item.type, timeLeft: duration }
-      if (item.type === 'OVERDRIVE') {
-        gameState.droneProximity = Math.max(0, gameState.droneProximity - 0.4)
-      }
       return { bonus: 0 }
     }
   }
@@ -150,7 +147,11 @@ export function initCollectibles(scene) {
   function update(delta, gameState) {
     if (gameState.status !== 'PLAYING') return
 
-    if (!gameState.droneBeamActive) gameState.comboTimer += delta
+    if (gameState.powerUp?.type === 'OVERDRIVE') {
+      gameState.comboTimer = 0
+    } else if (!gameState.droneBeamActive) {
+      gameState.comboTimer += delta
+    }
     if (gameState.comboTimer > 1.5) {
       gameState.combo = 0
       gameState.comboTimer = 0

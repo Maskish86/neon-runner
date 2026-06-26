@@ -23,6 +23,11 @@ export function checkCollisions(playerApi, obstacleApi, collectibleApi, gameStat
     if (hovering && obs.type !== 'LASER_GATE') return  // hover skips ground obstacles
     // Z window: only check obstacles near the player
     if (obs.mesh.position.z < -2 || obs.mesh.position.z > 3) return
+    // Laser gate: only collide when beam is visually on
+    if (obs.type === 'LASER_GATE') {
+      const beam = obs.mesh.getObjectByName('beam')
+      if (!beam?.visible) return
+    }
     const obsBox = obs.getAABB()
     if (boxesOverlap(playerBox, obsBox)) hitObstacle = true
   })

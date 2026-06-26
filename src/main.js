@@ -162,6 +162,8 @@ renderer.setAnimationLoop(() => {
         try { audioApi.play('hit') } catch(e) {}
         gameState.hp -= 1
         gameState.player.invincibleTimer = INVINCIBLE_DURATION
+        gameState.timeScale = 0.25
+        gameState.slowTimer = 0.2
         gameState.cameraShake = { intensity: 0.15, duration: 0.3 }
         if (gameState.hp <= 0) {
           gameState.status = 'GAME_OVER'

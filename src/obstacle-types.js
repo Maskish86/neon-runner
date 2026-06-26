@@ -48,11 +48,28 @@ export const OBSTACLE_FACTORIES = {
     const group = new THREE.Group()
     const geo = new THREE.CylinderGeometry(0.15, 0.15, 2.6, 8)
     geo.rotateZ(Math.PI / 2)
-    const mesh = new THREE.Mesh(geo, emissiveMat(0x004444, 0x00ffff))
-    mesh.position.y = 1.2  // chest height — player must slide under
-    group.add(mesh)
+    const pipe = new THREE.Mesh(geo, emissiveMat(0x004444, 0x00ffff))
+    pipe.position.y = 1.2
+    pipe.name = 'pipe'
+    group.add(pipe)
+    // End caps
+    const capMat = emissiveMat(0x006666, 0x00ffff, 3)
+    ;[-1.3, 1.3].forEach(x => {
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.05, 12), capMat)
+      cap.rotation.z = Math.PI / 2
+      cap.position.set(x, 1.2, 0)
+      group.add(cap)
+    })
+    // Support brackets
+    const bracketMat = emissiveMat(0x003333, 0x006666, 1)
+    ;[-0.8, 0.8].forEach(x => {
+      const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5, 0.06), bracketMat)
+      bracket.position.set(x, 1.7, 0)
+      group.add(bracket)
+    })
     group.userData.type = 'NEON_PIPE'
     group.userData.avoidWith = 'SLIDE'
+    group.userData.time = 0
     group.userData.hazardAABB = { minX: -1.3, maxX: 1.3, minY: 0.95, maxY: 1.45, minZ: -0.15, maxZ: 0.15 }
     return group
   },

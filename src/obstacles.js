@@ -57,6 +57,9 @@ export function initObstacles(scene) {
       entry.obj.userData.time = 0
       entry.obj.userData.glitchTimer = 1.2 + Math.random() * 0.8
     }
+    if (entry.obj.userData.type === 'NEON_PIPE') {
+      entry.obj.userData.time = 0
+    }
 
     // Pick lane — avoid same lane twice in a row
     let lane
@@ -120,6 +123,13 @@ export function initObstacles(scene) {
         if (botBody) botBody.position.y = 0.5 + 0.08 * Math.sin(obj.userData.time * 5)
         if (botHead) botHead.position.y = (botBody ? botBody.position.y : 0.5) + 0.5
         obj.rotation.z = obj.userData.patrolDir * 0.06 * Math.sin(obj.userData.time * 5)
+      }
+
+      // Neon pipe pulse
+      if (obj.userData.type === 'NEON_PIPE') {
+        obj.userData.time += delta
+        const pipe = obj.getObjectByName('pipe')
+        if (pipe) pipe.material.emissiveIntensity = 1.5 + 0.8 * Math.sin(obj.userData.time * 4)
       }
 
       // Recycle

@@ -107,7 +107,7 @@ export function initDrone(scene) {
     if (phase === 'WARNING') {
       if (phaseTimer <= 0) {
         phase = 'BEAM'
-        phaseTimer = 0.7
+        phaseTimer = 0.5
         warnEl.style.display = 'none'
         const beam = beamType === 'LOW' ? lowBeam : highBeam
         beam.visible = true

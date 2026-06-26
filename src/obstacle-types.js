@@ -75,25 +75,37 @@ export const OBSTACLE_FACTORIES = {
   },
 
   GAP() {
-    // Represented as a dark void plane — collision handled logically (player must jump)
     const group = new THREE.Group()
+    // Dark void floor
     const geo = new THREE.PlaneGeometry(2.4, 3)
     geo.rotateX(-Math.PI / 2)
-    const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x000000 }))
-    mesh.position.y = -0.05
-    group.add(mesh)
-    // Neon warning edges so the gap is visible against the dark floor
-    const edgeMat = new THREE.MeshStandardMaterial({ color: 0x220000, emissive: 0xff2200, emissiveIntensity: 3 })
+    const floor = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x000000 }))
+    floor.position.y = -0.05
+    group.add(floor)
+    // Pulsing warning edges (all share edgeMat so one material update affects all)
+    const edgeMat = new THREE.MeshStandardMaterial({ color: 0x330000, emissive: 0xff3300, emissiveIntensity: 4 })
     const edgeH = new THREE.BoxGeometry(2.4, 0.06, 0.06)
     const edgeV = new THREE.BoxGeometry(0.06, 0.06, 3)
-    ;[[-1.5], [1.5]].forEach(([z]) => {
-      const e = new THREE.Mesh(edgeH, edgeMat); e.position.set(0, 0, z); group.add(e)
+    ;[-1.5, 1.5].forEach((z, i) => {
+      const e = new THREE.Mesh(edgeH, edgeMat)
+      e.position.set(0, 0, z)
+      if (i === 0) e.name = 'gapEdge'
+      group.add(e)
     })
-    ;[[-1.2], [1.2]].forEach(([x]) => {
-      const e = new THREE.Mesh(edgeV, edgeMat); e.position.set(x, 0, 0); group.add(e)
+    ;[-1.2, 1.2].forEach(x => {
+      const e = new THREE.Mesh(edgeV, edgeMat)
+      e.position.set(x, 0, 0)
+      group.add(e)
     })
+    // Danger cross markers
+    const crossMat = new THREE.MeshStandardMaterial({ color: 0x220000, emissive: 0xff0000, emissiveIntensity: 2 })
+    const diagGeo = new THREE.BoxGeometry(3.6, 0.04, 0.04)
+    const cross1 = new THREE.Mesh(diagGeo, crossMat); cross1.position.y = 0.02; cross1.rotation.y = Math.PI / 4
+    const cross2 = new THREE.Mesh(diagGeo, crossMat); cross2.position.y = 0.02; cross2.rotation.y = -Math.PI / 4
+    group.add(cross1, cross2)
     group.userData.type = 'GAP'
     group.userData.avoidWith = 'JUMP'
+    group.userData.time = 0
     group.userData.hazardAABB = { minX: -1.2, maxX: 1.2, minY: -10, maxY: 0.05, minZ: -1.5, maxZ: 1.5 }
     return group
   },

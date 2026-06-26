@@ -60,6 +60,9 @@ export function initObstacles(scene) {
     if (entry.obj.userData.type === 'NEON_PIPE') {
       entry.obj.userData.time = 0
     }
+    if (entry.obj.userData.type === 'GAP') {
+      entry.obj.userData.time = 0
+    }
 
     // Pick lane — avoid same lane twice in a row
     let lane
@@ -130,6 +133,13 @@ export function initObstacles(scene) {
         obj.userData.time += delta
         const pipe = obj.getObjectByName('pipe')
         if (pipe) pipe.material.emissiveIntensity = 1.5 + 0.8 * Math.sin(obj.userData.time * 4)
+      }
+
+      // Gap pulsing edges
+      if (obj.userData.type === 'GAP') {
+        obj.userData.time += delta
+        const gapEdge = obj.getObjectByName('gapEdge')
+        if (gapEdge) gapEdge.material.emissiveIntensity = 4 + 2 * Math.abs(Math.sin(obj.userData.time * 3))
       }
 
       // Recycle

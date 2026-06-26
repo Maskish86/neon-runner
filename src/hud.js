@@ -14,7 +14,6 @@ export function initHud() {
       <span id="hud-combo-text">×2 COMBO</span>
       <div id="hud-combo-bar-wrap"><div id="hud-combo-bar"></div></div>
     </div>
-    <div id="hud-drone-warn">⚠ DRONE CLOSING IN ⚠</div>
   `
 }
 
@@ -41,9 +40,6 @@ export function updateHud(gameState) {
   } else {
     puEl.innerHTML = ''
   }
-
-  const warn = document.getElementById('hud-drone-warn')
-  if (warn) warn.style.display = gameState.droneProximity > 0.6 ? 'block' : 'none'
 
   const comboEl = document.getElementById('hud-combo')
   const comboTextEl = document.getElementById('hud-combo-text')

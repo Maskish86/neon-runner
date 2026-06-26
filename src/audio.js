@@ -41,11 +41,16 @@ const SOUNDS = {
   },
   hit()      { const t = getCtx().currentTime; beep(150, 'sawtooth', 0.2, 0.4, t) },
   powerup()  { const t = getCtx().currentTime; [440,550,660,880].forEach((f,i) => beep(f,'sine',0.12,0.2,t+i*0.07)) },
-  drone_warn(proximity) {
-    if (proximity < 0.5) return
+  beam_warn(type) {
     const t = getCtx().currentTime
-    const freq = 200 + proximity * 400
-    beep(freq, 'square', 0.05, proximity * 0.15, t)
+    const freq = type === 'LOW' ? 440 : 660
+    beep(freq, 'square', 0.08, 0.2, t)
+    beep(freq * 1.5, 'square', 0.05, 0.15, t + 0.12)
+  },
+  beam_hit() {
+    const t = getCtx().currentTime
+    beep(300, 'square', 0.12, 0.35, t)
+    beep(150, 'sawtooth', 0.15, 0.25, t + 0.04)
   },
 }
 

@@ -11,10 +11,6 @@ canvas { display: block; }
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none; z-index: 5;
 }
-.drone-glow {
-  position: absolute; inset: 0;
-  pointer-events: none;
-}
 
 /* HUD elements */
 #hud-score { position:absolute; top:16px; left:16px; font-size:22px; color:#00ffff; text-shadow:0 0 10px #00ffff; }
@@ -29,11 +25,6 @@ canvas { display: block; }
 .powerup-bar {
   height: 4px; background: #00ff88; box-shadow: 0 0 6px #00ff88;
   margin-top: 4px; transition: width 0.1s;
-}
-#hud-drone-warn {
-  position:absolute; bottom:80px; left:50%; transform:translateX(-50%);
-  font-size:16px; font-weight:bold; color:#ff0044; text-shadow:0 0 10px #ff0044;
-  display:none; letter-spacing:2px;
 }
 
 /* Screens */

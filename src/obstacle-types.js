@@ -41,6 +41,16 @@ export const OBSTACLE_FACTORIES = {
     const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x000000 }))
     mesh.position.y = -0.05
     group.add(mesh)
+    // Neon warning edges so the gap is visible against the dark floor
+    const edgeMat = new THREE.MeshStandardMaterial({ color: 0x220000, emissive: 0xff2200, emissiveIntensity: 3 })
+    const edgeH = new THREE.BoxGeometry(2.4, 0.06, 0.06)
+    const edgeV = new THREE.BoxGeometry(0.06, 0.06, 3)
+    ;[[-1.5], [1.5]].forEach(([z]) => {
+      const e = new THREE.Mesh(edgeH, edgeMat); e.position.set(0, 0, z); group.add(e)
+    })
+    ;[[-1.2], [1.2]].forEach(([x]) => {
+      const e = new THREE.Mesh(edgeV, edgeMat); e.position.set(x, 0, 0); group.add(e)
+    })
     group.userData.type = 'GAP'
     group.userData.avoidWith = 'JUMP'
     group.userData.hazardAABB = { minX: -1.2, maxX: 1.2, minY: -10, maxY: 0.05, minZ: -1.5, maxZ: 1.5 }

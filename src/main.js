@@ -131,8 +131,9 @@ renderer.setAnimationLoop(() => {
     }
     if (hitObstacle) {
       if (gameState.powerUp?.type === 'SHIELD') {
-        // SHIELD absorbs the hit — one-time use
+        // SHIELD absorbs the hit — one-time use, grant invincibility so same obstacle can't re-hit
         gameState.powerUp = null
+        gameState.player.invincibleTimer = INVINCIBLE_DURATION
       } else {
         particleApi.burstHit(playerApi.group.position.clone())
         try { audioApi.play('hit') } catch(e) {}

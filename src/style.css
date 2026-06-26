@@ -82,3 +82,40 @@ canvas { display: block; }
   transition:background 0.2s; pointer-events:auto;
 }
 .restart-btn:hover { background:#00ffff22; }
+
+#hud-combo {
+  position: absolute;
+  top: 80px;
+  right: 16px;
+  text-align: right;
+  font-family: inherit;
+}
+#hud-combo-text {
+  color: #ffcc00;
+  text-shadow: 0 0 12px #ffcc00;
+  font-size: 1.1em;
+  letter-spacing: 2px;
+  display: block;
+}
+#hud-combo-bar-wrap {
+  width: 120px;
+  height: 4px;
+  background: #333;
+  margin-top: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-left: auto;
+}
+#hud-combo-bar {
+  height: 100%;
+  background: #ffcc00;
+  box-shadow: 0 0 6px #ffcc00;
+  transition: width 0.05s linear;
+}
+@keyframes combo-pop {
+  0%   { transform: scale(1.4); }
+  100% { transform: scale(1.0); }
+}
+.combo-pop {
+  animation: combo-pop 0.15s ease-out forwards;
+}

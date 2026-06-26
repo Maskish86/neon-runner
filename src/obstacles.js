@@ -48,9 +48,20 @@ export function initObstacles(scene) {
     // Reset per-spawn state without rebuilding the mesh
     if (entry.obj.userData.type === 'PATROL_BOT') {
       entry.obj.userData.patrolDir = Math.random() > 0.5 ? 1 : -1
+      entry.obj.userData.time = 0
     }
     if (entry.obj.userData.type === 'LASER_GATE') {
       entry.obj.userData.blinkTimer = 0
+    }
+    if (entry.obj.userData.type === 'HOLOGRAM_SIGN') {
+      entry.obj.userData.time = 0
+      entry.obj.userData.glitchTimer = 1.2 + Math.random() * 0.8
+    }
+    if (entry.obj.userData.type === 'NEON_PIPE') {
+      entry.obj.userData.time = 0
+    }
+    if (entry.obj.userData.type === 'GAP') {
+      entry.obj.userData.time = 0
     }
 
     // Pick lane — avoid same lane twice in a row
@@ -86,14 +97,51 @@ export function initObstacles(scene) {
       if (obj.userData.type === 'LASER_GATE') {
         obj.userData.blinkTimer += delta
         const beam = obj.getObjectByName('beam')
+        const beam2 = obj.getObjectByName('beam2')
         if (beam) beam.visible = Math.sin(obj.userData.blinkTimer * 6) > 0
+        if (beam2) beam2.visible = beam ? beam.visible : false
+      }
+
+      // Hologram sign flicker
+      if (obj.userData.type === 'HOLOGRAM_SIGN') {
+        obj.userData.time += delta
+        obj.userData.glitchTimer -= delta
+        const panel = obj.getObjectByName('signPanel')
+        if (panel) {
+          if (obj.userData.glitchTimer <= 0) {
+            panel.material.emissiveIntensity = 0.05
+            obj.userData.glitchTimer = 1.2 + Math.random() * 0.8
+          } else {
+            panel.material.emissiveIntensity = 1.5 + 0.4 * Math.sin(obj.userData.time * 6)
+          }
+        }
       }
 
       // Patrol bot lateral movement
       if (obj.userData.type === 'PATROL_BOT') {
+        obj.userData.time += delta
         obj.position.x += obj.userData.patrolDir * obj.userData.patrolSpeed * delta
         if (obj.position.x > LANES[2] + 1) obj.userData.patrolDir = -1
         if (obj.position.x < LANES[0] - 1) obj.userData.patrolDir = 1
+        const botBody = obj.getObjectByName('botBody')
+        const botHead = obj.getObjectByName('botHead')
+        if (botBody) botBody.position.y = 0.5 + 0.08 * Math.sin(obj.userData.time * 5)
+        if (botHead) botHead.position.y = (botBody ? botBody.position.y : 0.5) + 0.5
+        obj.rotation.z = obj.userData.patrolDir * 0.06 * Math.sin(obj.userData.time * 5)
+      }
+
+      // Neon pipe pulse
+      if (obj.userData.type === 'NEON_PIPE') {
+        obj.userData.time += delta
+        const pipe = obj.getObjectByName('pipe')
+        if (pipe) pipe.material.emissiveIntensity = 1.5 + 0.8 * Math.sin(obj.userData.time * 4)
+      }
+
+      // Gap pulsing edges
+      if (obj.userData.type === 'GAP') {
+        obj.userData.time += delta
+        const gapEdge = obj.getObjectByName('gapEdge')
+        if (gapEdge) gapEdge.material.emissiveIntensity = 4 + 2 * Math.abs(Math.sin(obj.userData.time * 3))
       }
 
       // Recycle

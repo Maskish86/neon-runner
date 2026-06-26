@@ -22,20 +22,50 @@ function makeShardMesh(isEven) {
     emissiveIntensity: 2,
     roughness: 0.2, metalness: 0.8,
   })
-  return new THREE.Mesh(geo, mat)
+  const mesh = new THREE.Mesh(geo, mat)
+  // Inner core
+  const coreMat = new THREE.MeshStandardMaterial({
+    color: isEven ? 0x00ffff : 0xff00ff,
+    emissive: isEven ? 0x00ffff : 0xff00ff,
+    emissiveIntensity: 4,
+    roughness: 0, metalness: 1,
+  })
+  mesh.add(new THREE.Mesh(new THREE.OctahedronGeometry(0.12), coreMat))
+  return mesh
 }
 
 function makePowerUpMesh(type) {
   const c = POWERUP_COLORS[type]
-  const geo = new THREE.OctahedronGeometry(0.4)
-  const mat = new THREE.MeshStandardMaterial({
-    color: c.color, emissive: c.emissive, emissiveIntensity: 2.5,
-    roughness: 0.2, metalness: 0.9,
+  const group = new THREE.Group()
+  const stdMat = (color, emissive, intensity = 2.5) => new THREE.MeshStandardMaterial({
+    color, emissive, emissiveIntensity: intensity, roughness: 0.2, metalness: 0.9,
   })
-  const mesh = new THREE.Mesh(geo, mat)
-  mesh.userData.isPowerUp = true
-  mesh.userData.powerUpType = type
-  return mesh
+  if (type === 'SHIELD') {
+    group.add(new THREE.Mesh(
+      new THREE.TorusGeometry(0.35, 0.08, 8, 16),
+      stdMat(c.color, c.emissive)
+    ))
+  } else if (type === 'MAGNET') {
+    const cylGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.5, 8)
+    const north = new THREE.Mesh(cylGeo, stdMat(0xff2200, 0xff2200, 2))
+    north.position.x = -0.12
+    const south = new THREE.Mesh(cylGeo, stdMat(0x2200ff, 0x4444ff, 2))
+    south.position.x = 0.12
+    group.add(north, south)
+  } else if (type === 'OVERDRIVE') {
+    group.add(new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.4),
+      stdMat(c.color, c.emissive, 3)
+    ))
+  } else if (type === 'HOVER') {
+    const m = new THREE.Mesh(new THREE.OctahedronGeometry(0.4), stdMat(c.color, c.emissive))
+    m.scale.y = 0.5
+    group.add(m)
+  }
+  group.userData.isPowerUp = true
+  group.userData.powerUpType = type
+  group.userData.time = 0
+  return group
 }
 
 export function initCollectibles(scene) {
@@ -88,6 +118,7 @@ export function initCollectibles(scene) {
     if (!entry) return
     const lane = Math.floor(Math.random() * 3)
     entry.mesh.position.set(LANES[lane], 0.8, SPAWN_Z)
+    entry.mesh.userData.time = 0
     entry.mesh.visible = true
     entry.active = true
   }
@@ -132,7 +163,20 @@ export function initCollectibles(scene) {
       const mesh = entry.mesh
 
       mesh.position.z += gameState.speed * delta
-      mesh.rotation.y += delta * 2
+      if (mesh.userData.type === 'SHARD') {
+        mesh.rotation.y += delta * 2
+        mesh.rotation.x += delta * 1.3
+      } else {
+        // Power-up: bob + type-specific spin
+        mesh.userData.time = (mesh.userData.time || 0) + delta
+        mesh.position.y = 0.8 + 0.15 * Math.sin(mesh.userData.time * 3)
+        switch (mesh.userData.type) {
+          case 'SHIELD':    mesh.rotation.y += delta * 1.5; mesh.rotation.x += delta * 1.2; break
+          case 'MAGNET':    mesh.rotation.y += delta * 2; break
+          case 'OVERDRIVE': mesh.rotation.y += delta * 6; break
+          case 'HOVER':     mesh.rotation.y += delta * 2; break
+        }
+      }
 
       // MAGNET: pull shards toward player's current lane X
       if (gameState.powerUp?.type === 'MAGNET' && mesh.userData.type === 'SHARD') {

@@ -127,9 +127,15 @@ export function initCollectibles(scene) {
     item.entry.mesh.visible = false
     item.entry.active = false
     if (item.type === 'SHARD') {
-      gameState.combo = Math.min(4, gameState.combo + 1)
+      gameState.combo++
       gameState.comboTimer = 0
-      gameState.shardBonus += 10 * gameState.combo
+      gameState.shardBonus += 10
+      let bonus = 0
+      if (gameState.combo % 20 === 0)      bonus = 250
+      else if (gameState.combo % 10 === 0) bonus = 100
+      else if (gameState.combo % 5 === 0)  bonus = 50
+      gameState.shardBonus += bonus
+      return { bonus }
     } else {
       // Power-up
       const duration = POWERUP_DURATIONS[item.type]
@@ -137,6 +143,7 @@ export function initCollectibles(scene) {
       if (item.type === 'OVERDRIVE') {
         gameState.droneProximity = Math.max(0, gameState.droneProximity - 0.4)
       }
+      return { bonus: 0 }
     }
   }
 
@@ -144,8 +151,8 @@ export function initCollectibles(scene) {
     if (gameState.status !== 'PLAYING') return
 
     gameState.comboTimer += delta
-    if (gameState.comboTimer > 2.0) {
-      gameState.combo = 1
+    if (gameState.comboTimer > 1.5) {
+      gameState.combo = 0
       gameState.comboTimer = 0
     }
 

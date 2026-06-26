@@ -52,7 +52,7 @@ function makeGameState(skinColor = 'CYAN') {
     },
     powerUp: null,
     droneProximity: 0,
-    combo: 1,
+    combo: 0,
     comboTimer: 0,
     timeScale: 1.0,
     slowTimer: 0,
@@ -148,8 +148,14 @@ renderer.setAnimationLoop(() => {
     if (hitCollectible) {
       particleApi.burstCollect(hitCollectible.mesh.position.clone(),
         hitCollectible.type === 'SHARD' ? 0x00ffff : 0xffcc00)
-      try { audioApi.play(hitCollectible.type === 'SHARD' ? 'collect' : 'powerup') } catch(e) {}
-      collectibleApi.collect(hitCollectible, gameState)
+      const { bonus } = collectibleApi.collect(hitCollectible, gameState)
+      if (hitCollectible.type === 'SHARD') {
+        if (bonus > 0)                   try { audioApi.play('collect_milestone', bonus, gameState.combo) } catch(e) {}
+        else if (gameState.combo >= 2)   try { audioApi.play('collect_combo', gameState.combo) } catch(e) {}
+        else                             try { audioApi.play('collect') } catch(e) {}
+      } else {
+        try { audioApi.play('powerup') } catch(e) {}
+      }
     }
     if (hitObstacle) {
       if (gameState.powerUp?.type === 'SHIELD') {
@@ -165,7 +171,7 @@ renderer.setAnimationLoop(() => {
         gameState.timeScale = 0.25
         gameState.slowTimer = 0.2
         gameState.cameraShake = { intensity: 0.15, duration: 0.3 }
-        gameState.combo = 1
+        gameState.combo = 0
         gameState.comboTimer = 0
         if (gameState.hp <= 0) {
           gameState.status = 'GAME_OVER'

@@ -51,18 +51,18 @@ export function updateHud(gameState) {
   if (comboEl && gameState.combo !== undefined) {
     if (gameState.combo >= 2) {
       comboEl.style.display = 'block'
-      comboTextEl.textContent = `×${gameState.combo} COMBO`
-      const pct = Math.max(0, (1 - gameState.comboTimer / 2.0) * 100)
+      comboTextEl.textContent = `${gameState.combo} CHAIN`
+      const pct = Math.max(0, (1 - gameState.comboTimer / 1.5) * 100)
       comboBarEl.style.width = `${pct}%`
       if (gameState.combo !== lastCombo) {
         comboTextEl.classList.remove('combo-pop')
-        void comboTextEl.offsetWidth  // force reflow to restart animation
+        void comboTextEl.offsetWidth
         comboTextEl.classList.add('combo-pop')
         lastCombo = gameState.combo
       }
     } else {
       comboEl.style.display = 'none'
-      lastCombo = 1
+      lastCombo = 0
     }
   }
 }

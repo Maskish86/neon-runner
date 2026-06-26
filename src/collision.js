@@ -32,12 +32,19 @@ export function checkCollisions(playerApi, obstacleApi, collectibleApi, gameStat
     if (boxesOverlap(playerBox, obsBox)) hitObstacle = true
   })
 
-  // Collectible collision
+  // Collectible collision — during HOVER extend box to ground so shards are reachable
+  // (obstacle collision still uses the normal playerBox, so LASER_GATE check is unaffected)
+  const collectBox = hovering
+    ? new THREE.Box3(
+        new THREE.Vector3(playerBox.min.x, 0, playerBox.min.z),
+        playerBox.max.clone()
+      )
+    : playerBox
   collectibleApi.getActive().forEach(col => {
     if (hitCollectible) return
     if (col.mesh.position.z < -2 || col.mesh.position.z > 3) return
     const colBox = col.getAABB()
-    if (boxesOverlap(playerBox, colBox)) hitCollectible = col
+    if (boxesOverlap(collectBox, colBox)) hitCollectible = col
   })
 
   return { hitObstacle, hitCollectible }

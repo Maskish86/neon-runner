@@ -1,29 +1,37 @@
 import { describe, it, expect } from 'vitest'
 
-// mirrors the logic in collectibles.js collect()
-function shardScore(combo) {
-  return 10 * Math.min(4, combo)
+// mirrors threshold logic in collectibles.js collect()
+function comboBonus(count) {
+  if (count % 20 === 0) return 250
+  if (count % 10 === 0) return 100
+  if (count % 5 === 0)  return 50
+  return 0
 }
 
-function nextCombo(current) {
-  return Math.min(4, current + 1)
-}
-
-describe('combo scoring', () => {
-  it('base combo gives 10 points', () => {
-    expect(shardScore(1)).toBe(10)
+describe('combo bonus thresholds', () => {
+  it('no bonus below 5', () => {
+    expect(comboBonus(1)).toBe(0)
+    expect(comboBonus(4)).toBe(0)
   })
-  it('combo 2 gives 20 points', () => {
-    expect(shardScore(2)).toBe(20)
+  it('5th shard gives +50', () => {
+    expect(comboBonus(5)).toBe(50)
   })
-  it('combo 4 gives 40 points', () => {
-    expect(shardScore(4)).toBe(40)
+  it('10th shard gives +100 (not +50)', () => {
+    expect(comboBonus(10)).toBe(100)
   })
-  it('combo caps at 4', () => {
-    expect(nextCombo(4)).toBe(4)
-    expect(shardScore(nextCombo(4))).toBe(40)
+  it('15th shard gives +50', () => {
+    expect(comboBonus(15)).toBe(50)
   })
-  it('combo 5 is capped to 4', () => {
-    expect(shardScore(5)).toBe(40)
+  it('20th shard gives +250 (not +100 or +50)', () => {
+    expect(comboBonus(20)).toBe(250)
+  })
+  it('25th shard gives +50', () => {
+    expect(comboBonus(25)).toBe(50)
+  })
+  it('40th shard gives +250 (multiple of 20)', () => {
+    expect(comboBonus(40)).toBe(250)
+  })
+  it('60th shard gives +250', () => {
+    expect(comboBonus(60)).toBe(250)
   })
 })

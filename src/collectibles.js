@@ -22,7 +22,16 @@ function makeShardMesh(isEven) {
     emissiveIntensity: 2,
     roughness: 0.2, metalness: 0.8,
   })
-  return new THREE.Mesh(geo, mat)
+  const mesh = new THREE.Mesh(geo, mat)
+  // Inner core
+  const coreMat = new THREE.MeshStandardMaterial({
+    color: isEven ? 0x00ffff : 0xff00ff,
+    emissive: isEven ? 0x00ffff : 0xff00ff,
+    emissiveIntensity: 4,
+    roughness: 0, metalness: 1,
+  })
+  mesh.add(new THREE.Mesh(new THREE.OctahedronGeometry(0.12), coreMat))
+  return mesh
 }
 
 function makePowerUpMesh(type) {
@@ -132,7 +141,12 @@ export function initCollectibles(scene) {
       const mesh = entry.mesh
 
       mesh.position.z += gameState.speed * delta
-      mesh.rotation.y += delta * 2
+      if (mesh.userData.type === 'SHARD') {
+        mesh.rotation.y += delta * 2
+        mesh.rotation.x += delta * 1.3
+      } else {
+        mesh.rotation.y += delta * 2
+      }
 
       // MAGNET: pull shards toward player's current lane X
       if (gameState.powerUp?.type === 'MAGNET' && mesh.userData.type === 'SHARD') {

@@ -15,14 +15,6 @@ export function beamHitsPlayer(beamType, playerYPos, playerAction) {
   return false
 }
 
-// Pure function — testable without Three.js scene
-export function calcProximityDelta({ hitObstacle, evaded, overdrive }, delta) {
-  if (overdrive) return -0.4
-  if (hitObstacle) return 0.3
-  if (evaded) return -0.1
-  return 0.002 * delta  // Slow passive creep
-}
-
 function buildDroneMesh() {
   const group = new THREE.Group()
   const bodyMat = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0xff0000, emissiveIntensity: 2, metalness: 0.9 })
@@ -41,67 +33,129 @@ function buildDroneMesh() {
   return group
 }
 
+function buildBeamMesh(color, y) {
+  const mat = new THREE.MeshStandardMaterial({
+    color, emissive: color, emissiveIntensity: 3,
+    transparent: true, opacity: 0.9,
+  })
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(40, 0.12, 0.3), mat)
+  mesh.position.set(0, y, 0)
+  mesh.visible = false
+  return mesh
+}
+
 export function initDrone(scene) {
   const droneGroup = buildDroneMesh()
   scene.add(droneGroup)
 
-  const glowEl = document.createElement('div')
-  glowEl.className = 'drone-glow'
-  document.getElementById('overlay').appendChild(glowEl)
+  const lowBeam  = buildBeamMesh(0xff2200, BEAM_LOW_Y)
+  const highBeam = buildBeamMesh(0x0066ff, BEAM_HIGH_Y)
+  scene.add(lowBeam)
+  scene.add(highBeam)
 
-  const warningEl = document.createElement('div')
-  warningEl.style.cssText = `
-    position:absolute;bottom:80px;left:50%;transform:translateX(-50%);
-    color:#ff0044;font-family:monospace;font-size:16px;font-weight:bold;
-    text-shadow:0 0 8px #ff0044;display:none;
-  `
-  warningEl.textContent = '⚠ DRONE CLOSING IN ⚠'
-  document.getElementById('hud').appendChild(warningEl)
+  const warnEl = document.createElement('div')
+  warnEl.id = 'drone-beam-warn'
+  warnEl.style.cssText = [
+    'position:absolute', 'top:80px', 'left:50%', 'transform:translateX(-50%)',
+    'padding:8px 28px', 'border-radius:4px', 'font-family:monospace',
+    'font-size:22px', 'font-weight:bold', 'letter-spacing:3px',
+    'display:none', 'text-align:center', 'color:#fff',
+  ].join(';')
+  document.getElementById('hud').appendChild(warnEl)
 
-  let captureAnim = null
+  // phase: 'IDLE' | 'WARNING' | 'BEAM' | 'COOLDOWN'
+  let phase = 'IDLE'
+  let phaseTimer = 0
+  let attackTimer = 0
+  let nextInterval = 12   // first beam at 12s
+  let beamType = 'LOW'    // alternates each attack
 
-  function update(delta, gameState) {
-    if (gameState.status !== 'PLAYING') return
-
-    // Rotor spin
-    droneGroup.children.filter(c => c.name === 'rotor').forEach(r => r.rotation.y += delta * 20)
-
-    // Proximity glow
-    const p = gameState.droneProximity
-    const spread = Math.floor(p * 80)
-    const alpha = p * 0.7
-    glowEl.style.boxShadow = `inset 0 0 ${spread}px ${Math.floor(spread * 0.5)}px rgba(255,0,68,${alpha})`
-    warningEl.style.display = p > 0.6 ? 'block' : 'none'
-  }
-
-  function triggerCapture(camera, gameState, onComplete) {
-    droneGroup.position.set(0, 2, 15)
+  function startWarning() {
+    phase = 'WARNING'
+    phaseTimer = 1.5
+    droneGroup.position.set(0, 5, 0)
     droneGroup.visible = true
-    const startY = droneGroup.position.y
-    let t = 0
-    captureAnim = (delta) => {
-      t += delta
-      droneGroup.position.z -= 12 * delta
-      droneGroup.position.y = startY - t * 4
-      if (t > 1.2) {
-        droneGroup.visible = false
-        captureAnim = null
-        onComplete()
-      }
+    warnEl.style.display = 'block'
+    if (beamType === 'LOW') {
+      warnEl.textContent = '↑ JUMP'
+      warnEl.style.background = 'rgba(200,20,0,0.85)'
+      warnEl.style.boxShadow = '0 0 20px #ff2200'
+    } else {
+      warnEl.textContent = '↓ SLIDE'
+      warnEl.style.background = 'rgba(0,60,200,0.85)'
+      warnEl.style.boxShadow = '0 0 20px #0066ff'
     }
   }
 
-  function updateCapture(delta) {
-    if (captureAnim) captureAnim(delta)
+  function update(delta, gameState) {
+    if (gameState.status !== 'PLAYING') return { beamHit: false, warningStarted: false, beamType }
+
+    droneGroup.children.filter(c => c.name === 'rotor').forEach(r => r.rotation.y += delta * 20)
+
+    if (phase === 'IDLE') {
+      attackTimer += delta
+      if (attackTimer >= nextInterval) {
+        attackTimer = 0
+        startWarning()
+        return { beamHit: false, warningStarted: true, beamType }
+      }
+      return { beamHit: false, warningStarted: false, beamType }
+    }
+
+    phaseTimer -= delta
+
+    if (phase === 'WARNING') {
+      if (phaseTimer <= 0) {
+        phase = 'BEAM'
+        phaseTimer = 0.7
+        warnEl.style.display = 'none'
+        const beam = beamType === 'LOW' ? lowBeam : highBeam
+        beam.visible = true
+        beam.material.opacity = 0.9
+      }
+      return { beamHit: false, warningStarted: false, beamType }
+    }
+
+    if (phase === 'BEAM') {
+      const beam = beamType === 'LOW' ? lowBeam : highBeam
+      beam.material.emissiveIntensity = 3 + Math.sin(phaseTimer * 40) * 1.5
+
+      const beamHit = gameState.player.invincibleTimer <= 0
+        && beamHitsPlayer(beamType, gameState.player.yPos, gameState.player.action)
+
+      if (phaseTimer <= 0) {
+        phase = 'COOLDOWN'
+        phaseTimer = 0.5
+      }
+      return { beamHit, warningStarted: false, beamType }
+    }
+
+    if (phase === 'COOLDOWN') {
+      const beam = beamType === 'LOW' ? lowBeam : highBeam
+      beam.material.opacity = Math.max(0, (phaseTimer / 0.5) * 0.9)
+      if (phaseTimer <= 0) {
+        beam.visible = false
+        droneGroup.visible = false
+        phase = 'IDLE'
+        beamType = beamType === 'LOW' ? 'HIGH' : 'LOW'
+        nextInterval = pickBeamInterval(gameState.distance)
+      }
+    }
+
+    return { beamHit: false, warningStarted: false, beamType }
   }
 
   function reset() {
+    phase = 'IDLE'
+    phaseTimer = 0
+    attackTimer = 0
+    nextInterval = 12
+    beamType = 'LOW'
     droneGroup.visible = false
-    captureAnim = null
-    const glowEl2 = document.querySelector('.drone-glow')
-    if (glowEl2) glowEl2.style.boxShadow = 'none'
-    warningEl.style.display = 'none'
+    lowBeam.visible = false
+    highBeam.visible = false
+    warnEl.style.display = 'none'
   }
 
-  return { update, triggerCapture, updateCapture, reset }
+  return { update, reset }
 }

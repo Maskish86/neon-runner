@@ -7,7 +7,7 @@ import { initObstacles } from './obstacles.js'
 import { checkCollisions } from './collision.js'
 import { initHud, updateHud, showScreen } from './hud.js'
 import { initCollectibles } from './collectibles.js'
-import { calcProximityDelta, initDrone } from './drone.js'
+import { initDrone } from './drone.js'
 import { initParticles } from './particles.js'
 import { initAudio } from './audio.js'
 
@@ -51,7 +51,6 @@ function makeGameState(skinColor = 'CYAN') {
       slideTimer: 0, invincibleTimer: 0,
     },
     powerUp: null,
-    droneProximity: 0,
     combo: 0,
     comboTimer: 0,
     timeScale: 1.0,
@@ -65,7 +64,6 @@ let playerApi = initPlayer(scene, gameState.skinColor)
 let obstacleApi = initObstacles(scene)
 const droneApi = initDrone(scene)
 const particleApi = initParticles(scene)
-let captureTriggered = false
 
 const audioApi = initAudio()
 
@@ -105,7 +103,6 @@ window.addEventListener('game-restart', () => {
   collectibleApi.reset()
   droneApi.reset()
   particleApi.reset()
-  captureTriggered = false
   gameState = makeGameState(gameState.skinColor)
   gameState.powerUp = null
   playerApi = initPlayer(scene, gameState.skinColor)
@@ -180,26 +177,25 @@ renderer.setAnimationLoop(() => {
       }
     }
 
-    const evaded = false  // passive decay + overdrive handles drone tension; per-frame signal overwhelmed delta
-    const proxDelta = calcProximityDelta({
-      hitObstacle,
-      evaded,
-      overdrive: gameState.powerUp?.type === 'OVERDRIVE',
-    }, delta)
-    gameState.droneProximity = Math.max(0, Math.min(1, gameState.droneProximity + proxDelta))
-    try { audioApi.play('drone_warn', gameState.droneProximity) } catch(e) {}
-
     particleApi.update(delta, gameState, camera)
-    droneApi.update(delta, gameState)
-    droneApi.updateCapture(delta)
-
-    if (gameState.droneProximity >= 1 && !captureTriggered) {
-      captureTriggered = true
-      gameState.hp = 0
-      droneApi.triggerCapture(camera, gameState, () => {
+    const { beamHit, warningStarted, beamType } = droneApi.update(delta, gameState)
+    if (warningStarted) {
+      try { audioApi.play('beam_warn', beamType) } catch(e) {}
+    }
+    if (beamHit) {
+      particleApi.burstHit(playerApi.group.position.clone())
+      try { audioApi.play('beam_hit') } catch(e) {}
+      gameState.hp -= 1
+      gameState.player.invincibleTimer = INVINCIBLE_DURATION
+      gameState.timeScale = 0.25
+      gameState.slowTimer = 0.2
+      gameState.cameraShake = { intensity: 0.15, duration: 0.3 }
+      gameState.combo = 0
+      gameState.comboTimer = 0
+      if (gameState.hp <= 0) {
         gameState.status = 'GAME_OVER'
         showScreen('GAME_OVER', gameState)
-      })
+      }
     }
 
     // camera shake

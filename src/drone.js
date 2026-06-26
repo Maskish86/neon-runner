@@ -61,8 +61,6 @@ export function initDrone(scene) {
     'font-size:22px', 'font-weight:bold', 'letter-spacing:3px',
     'display:none', 'text-align:center', 'color:#fff',
   ].join(';')
-  document.getElementById('hud').appendChild(warnEl)
-
   // phase: 'IDLE' | 'WARNING' | 'BEAM' | 'COOLDOWN'
   let phase = 'IDLE'
   let phaseTimer = 0
@@ -75,6 +73,7 @@ export function initDrone(scene) {
     phaseTimer = 1.5
     droneGroup.position.set(0, 5, 0)
     droneGroup.visible = true
+    if (!warnEl.parentElement) document.getElementById('hud').appendChild(warnEl)
     warnEl.style.display = 'block'
     if (beamType === 'LOW') {
       warnEl.innerHTML = '<span class="beam-arrow beam-arrow-up">↑</span> JUMP <span class="beam-arrow beam-arrow-up" style="animation-delay:0.15s">↑</span>'

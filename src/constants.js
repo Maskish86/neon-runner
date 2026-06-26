@@ -1,6 +1,6 @@
 // src/constants.js — created in Task 1, used everywhere
 export const LANES = [-2.5, 0, 2.5]      // world X positions
-export const BASE_SPEED = 8               // units/sec
+export const BASE_SPEED = 12              // units/sec
 export const MAX_SPEED = 22
 export const ACCEL_FACTOR = 0.0008        // speed += distance * ACCEL_FACTOR per frame
 export const LANE_SWITCH_DURATION = 0.15  // seconds
@@ -16,7 +16,7 @@ export const SKIN_COLORS = {
 }
 
 export const POWERUP_TYPES = ['SHIELD', 'MAGNET', 'OVERDRIVE', 'HOVER']
-export const POWERUP_DURATIONS = { SHIELD: Infinity, MAGNET: 8, OVERDRIVE: 5, HOVER: 6 }
+export const POWERUP_DURATIONS = { SHIELD: Infinity, MAGNET: 5, OVERDRIVE: 5, HOVER: 6 }
 
 // GameState shape — owned by main.js, passed by reference to all modules
 // {

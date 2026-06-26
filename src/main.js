@@ -26,6 +26,9 @@ const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerH
 camera.position.set(0, 4, 8)
 camera.lookAt(0, 0, -10)
 
+const CAM_BASE_X = 0
+const CAM_BASE_Y = 4
+
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
@@ -49,6 +52,11 @@ function makeGameState(skinColor = 'CYAN') {
     },
     powerUp: null,
     droneProximity: 0,
+    combo: 0,
+    comboTimer: 0,
+    timeScale: 1.0,
+    slowTimer: 0,
+    cameraShake: { intensity: 0, duration: 0 },
   }
 }
 
@@ -109,8 +117,18 @@ window.addEventListener('game-restart', () => {
 let last = performance.now()
 renderer.setAnimationLoop(() => {
   const now = performance.now()
-  const delta = Math.min((now - last) / 1000, 0.05)
+  const realDelta = Math.min((now - last) / 1000, 0.05)
   last = now
+
+  // slow-mo timer counts down in real time, not game time
+  if (gameState.slowTimer > 0) {
+    gameState.slowTimer -= realDelta
+    if (gameState.slowTimer <= 0) {
+      gameState.slowTimer = 0
+      gameState.timeScale = 1.0
+    }
+  }
+  const delta = realDelta * gameState.timeScale
 
   if (gameState.status === 'PLAYING') {
     gameState.distance += gameState.speed * delta
@@ -118,7 +136,11 @@ renderer.setAnimationLoop(() => {
     gameState.score = Math.floor(gameState.distance) + gameState.shardBonus
 
     updateScene(delta, gameState.speed)
+    const prevYPos = gameState.player.yPos
     playerApi.update(delta, gameState)
+    if (prevYPos > 0.05 && gameState.player.yPos <= 0 && gameState.player.action !== 'SLIDING') {
+      gameState.cameraShake = { intensity: 0.06, duration: 0.1 }
+    }
     obstacleApi.update(delta, gameState)
     collectibleApi.update(delta, gameState)
 
@@ -126,19 +148,31 @@ renderer.setAnimationLoop(() => {
     if (hitCollectible) {
       particleApi.burstCollect(hitCollectible.mesh.position.clone(),
         hitCollectible.type === 'SHARD' ? 0x00ffff : 0xffcc00)
-      try { audioApi.play(hitCollectible.type === 'SHARD' ? 'collect' : 'powerup') } catch(e) {}
-      collectibleApi.collect(hitCollectible, gameState)
+      const { bonus } = collectibleApi.collect(hitCollectible, gameState)
+      if (hitCollectible.type === 'SHARD') {
+        if (bonus > 0)                   try { audioApi.play('collect_milestone', bonus, gameState.combo) } catch(e) {}
+        else if (gameState.combo >= 2)   try { audioApi.play('collect_combo', gameState.combo) } catch(e) {}
+        else                             try { audioApi.play('collect') } catch(e) {}
+      } else {
+        try { audioApi.play('powerup') } catch(e) {}
+      }
     }
     if (hitObstacle) {
       if (gameState.powerUp?.type === 'SHIELD') {
         // SHIELD absorbs the hit — one-time use, grant invincibility so same obstacle can't re-hit
         gameState.powerUp = null
         gameState.player.invincibleTimer = INVINCIBLE_DURATION
+        gameState.cameraShake = { intensity: 0.08, duration: 0.15 }
       } else {
         particleApi.burstHit(playerApi.group.position.clone())
         try { audioApi.play('hit') } catch(e) {}
         gameState.hp -= 1
         gameState.player.invincibleTimer = INVINCIBLE_DURATION
+        gameState.timeScale = 0.25
+        gameState.slowTimer = 0.2
+        gameState.cameraShake = { intensity: 0.15, duration: 0.3 }
+        gameState.combo = 0
+        gameState.comboTimer = 0
         if (gameState.hp <= 0) {
           gameState.status = 'GAME_OVER'
           showScreen('GAME_OVER', gameState)
@@ -166,6 +200,18 @@ renderer.setAnimationLoop(() => {
         gameState.status = 'GAME_OVER'
         showScreen('GAME_OVER', gameState)
       })
+    }
+
+    // camera shake
+    if (gameState.cameraShake.duration > 0) {
+      camera.position.x = CAM_BASE_X + (Math.random() - 0.5) * gameState.cameraShake.intensity
+      camera.position.y = CAM_BASE_Y + (Math.random() - 0.5) * gameState.cameraShake.intensity
+      gameState.cameraShake.duration -= realDelta
+      if (gameState.cameraShake.duration <= 0) {
+        gameState.cameraShake.duration = 0
+        camera.position.x = CAM_BASE_X
+        camera.position.y = CAM_BASE_Y
+      }
     }
 
     updateHud(gameState)

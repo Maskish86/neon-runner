@@ -10,7 +10,7 @@ describe('Imports and Constants', () => {
 
   it('constants.js exports required values', () => {
     expect(constants.LANES).toEqual([-2.5, 0, 2.5])
-    expect(constants.BASE_SPEED).toBe(8)
+    expect(constants.BASE_SPEED).toBe(12)
     expect(constants.MAX_SPEED).toBe(22)
     expect(constants.JUMP_VELOCITY).toBe(10)
     expect(constants.GRAVITY).toBe(-22)

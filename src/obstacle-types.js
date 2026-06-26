@@ -112,28 +112,35 @@ export const OBSTACLE_FACTORIES = {
 
   LASER_GATE() {
     const group = new THREE.Group()
-    // Two vertical posts
+    // Segmented posts (3 parts each)
     ;[-1.1, 1.1].forEach(x => {
-      const post = new THREE.Mesh(
-        new THREE.BoxGeometry(0.1, 2.5, 0.1),
-        emissiveMat(0x440000, 0xff0000, 2)
-      )
-      post.position.set(x, 1.25, 0)
-      group.add(post)
+      const base = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.3, 0.14), emissiveMat(0x440000, 0xff0000, 2))
+      base.position.set(x, 0.15, 0)
+      const mid = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.8, 0.08), emissiveMat(0x440000, 0xff0000, 2))
+      mid.position.set(x, 1.05, 0)
+      const top = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.3, 0.14), emissiveMat(0x440000, 0xff0000, 2))
+      top.position.set(x, 1.95, 0)
+      group.add(base, mid, top)
     })
-    // Laser beam (top half — must slide under)
-    const beam = new THREE.Mesh(
-      new THREE.BoxGeometry(2.2, 0.06, 0.06),
-      emissiveMat(0x440000, 0xff0000, 3)
-    )
+    // Top crossbar
+    const crossbar = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.08, 0.08), emissiveMat(0x440000, 0xff0000, 2))
+    crossbar.position.y = 2.1
+    group.add(crossbar)
+    // Primary beam
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.06, 0.06), emissiveMat(0x440000, 0xff0000, 3))
     beam.position.y = 1.2
     beam.name = 'beam'
     group.add(beam)
+    // Secondary beam (opposite-phase blink)
+    const beam2 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.03, 0.03), emissiveMat(0x220000, 0xff4400, 2))
+    beam2.position.y = 1.1
+    beam2.name = 'beam2'
+    group.add(beam2)
     group.userData.type = 'LASER_GATE'
-    group.userData.avoidWith = 'SLIDE'  // beam at y=1.2 blocks running height; slide under
+    group.userData.avoidWith = 'SLIDE'
     group.userData.blinkTimer = 0
     group.userData.active = true
-    group.userData.hazardAABB = { minX: -1.1, maxX: 1.1, minY: 1.17, maxY: 1.23, minZ: -0.03, maxZ: 0.03 }
+    group.userData.hazardAABB = { minX: -1.1, maxX: 1.1, minY: 1.07, maxY: 1.23, minZ: -0.03, maxZ: 0.03 }
     return group
   },
 

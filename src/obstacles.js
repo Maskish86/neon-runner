@@ -97,7 +97,9 @@ export function initObstacles(scene) {
       if (obj.userData.type === 'LASER_GATE') {
         obj.userData.blinkTimer += delta
         const beam = obj.getObjectByName('beam')
+        const beam2 = obj.getObjectByName('beam2')
         if (beam) beam.visible = Math.sin(obj.userData.blinkTimer * 6) > 0
+        if (beam2) beam2.visible = beam ? !beam.visible : false
       }
 
       // Hologram sign flicker

@@ -63,8 +63,8 @@ export const OBSTACLE_FACTORIES = {
     // Support brackets
     const bracketMat = emissiveMat(0x003333, 0x006666, 1)
     ;[-0.8, 0.8].forEach(x => {
-      const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5, 0.06), bracketMat)
-      bracket.position.set(x, 0.95, 0)
+      const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.2, 0.06), bracketMat)
+      bracket.position.set(x, 0.6, 0)
       group.add(bracket)
     })
     group.userData.type = 'NEON_PIPE'

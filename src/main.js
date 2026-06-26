@@ -165,6 +165,8 @@ renderer.setAnimationLoop(() => {
         gameState.timeScale = 0.25
         gameState.slowTimer = 0.2
         gameState.cameraShake = { intensity: 0.15, duration: 0.3 }
+        gameState.combo = 1
+        gameState.comboTimer = 0
         if (gameState.hp <= 0) {
           gameState.status = 'GAME_OVER'
           showScreen('GAME_OVER', gameState)

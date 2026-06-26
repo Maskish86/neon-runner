@@ -127,7 +127,9 @@ export function initCollectibles(scene) {
     item.entry.mesh.visible = false
     item.entry.active = false
     if (item.type === 'SHARD') {
-      gameState.shardBonus += 10
+      gameState.combo = Math.min(4, gameState.combo + 1)
+      gameState.comboTimer = 0
+      gameState.shardBonus += 10 * gameState.combo
     } else {
       // Power-up
       const duration = POWERUP_DURATIONS[item.type]
@@ -140,6 +142,12 @@ export function initCollectibles(scene) {
 
   function update(delta, gameState) {
     if (gameState.status !== 'PLAYING') return
+
+    gameState.comboTimer += delta
+    if (gameState.comboTimer > 2.0) {
+      gameState.combo = 1
+      gameState.comboTimer = 0
+    }
 
     shardTimer -= delta
     if (shardTimer <= 0) {

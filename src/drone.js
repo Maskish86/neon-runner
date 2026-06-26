@@ -30,7 +30,7 @@ function buildDroneMesh() {
     group.add(rotor)
   })
   group.visible = false
-  return group
+  return { group, bodyMat }
 }
 
 function buildBeamMesh(color, y) {
@@ -45,7 +45,7 @@ function buildBeamMesh(color, y) {
 }
 
 export function initDrone(scene) {
-  const droneGroup = buildDroneMesh()
+  const { group: droneGroup, bodyMat: droneMat } = buildDroneMesh()
   scene.add(droneGroup)
 
   const lowBeam  = buildBeamMesh(0xff2200, BEAM_LOW_Y)
@@ -76,10 +76,12 @@ export function initDrone(scene) {
     if (!warnEl.parentElement) document.getElementById('hud').appendChild(warnEl)
     warnEl.style.display = 'block'
     if (beamType === 'LOW') {
+      droneMat.emissive.setHex(0xff2200)
       warnEl.innerHTML = '<span class="beam-arrow beam-arrow-up">↑</span> JUMP <span class="beam-arrow beam-arrow-up" style="animation-delay:0.15s">↑</span>'
       warnEl.style.background = 'rgba(200,20,0,0.85)'
       warnEl.style.boxShadow = '0 0 20px #ff2200'
     } else {
+      droneMat.emissive.setHex(0x0066ff)
       warnEl.innerHTML = '<span class="beam-arrow beam-arrow-down">↓</span> SLIDE <span class="beam-arrow beam-arrow-down" style="animation-delay:0.15s">↓</span>'
       warnEl.style.background = 'rgba(0,60,200,0.85)'
       warnEl.style.boxShadow = '0 0 20px #0066ff'
@@ -153,6 +155,7 @@ export function initDrone(scene) {
     droneGroup.visible = false
     lowBeam.visible = false
     highBeam.visible = false
+    droneMat.emissive.setHex(0xff2200)
     warnEl.style.display = 'none'
   }
 

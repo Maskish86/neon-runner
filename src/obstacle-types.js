@@ -36,6 +36,13 @@ export const OBSTACLE_FACTORIES = {
       line.position.set(0, y, 0.08)
       group.add(line)
     })
+    // Ground support poles
+    const poleMat = emissiveMat(0x002244, 0x00aaff, 1.5)
+    ;[-1.0, 1.0].forEach(x => {
+      const pole = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.65, 0.07), poleMat)
+      pole.position.set(x, 0.325, 0)
+      group.add(pole)
+    })
     group.userData.type = 'HOLOGRAM_SIGN'
     group.userData.avoidWith = 'JUMP'
     group.userData.time = 0

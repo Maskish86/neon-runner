@@ -26,6 +26,17 @@ canvas { display: block; }
   height: 4px; background: #00ff88; box-shadow: 0 0 6px #00ff88;
   margin-top: 4px; transition: width 0.1s;
 }
+@keyframes beam-bounce-up {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(-7px); opacity: 1; }
+}
+@keyframes beam-bounce-down {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(7px); opacity: 1; }
+}
+.beam-arrow { display: inline-block; font-size: 28px; }
+.beam-arrow-up   { animation: beam-bounce-up   0.45s ease-in-out infinite; }
+.beam-arrow-down { animation: beam-bounce-down 0.45s ease-in-out infinite; }
 
 /* Screens */
 .screen {

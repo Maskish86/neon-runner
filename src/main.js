@@ -26,6 +26,9 @@ const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerH
 camera.position.set(0, 4, 8)
 camera.lookAt(0, 0, -10)
 
+const CAM_BASE_X = 0
+const CAM_BASE_Y = 4
+
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
@@ -133,7 +136,11 @@ renderer.setAnimationLoop(() => {
     gameState.score = Math.floor(gameState.distance) + gameState.shardBonus
 
     updateScene(delta, gameState.speed)
+    const prevYPos = gameState.player.yPos
     playerApi.update(delta, gameState)
+    if (prevYPos > 0.05 && gameState.player.yPos <= 0 && gameState.player.action !== 'SLIDING') {
+      gameState.cameraShake = { intensity: 0.06, duration: 0.1 }
+    }
     obstacleApi.update(delta, gameState)
     collectibleApi.update(delta, gameState)
 
@@ -149,11 +156,13 @@ renderer.setAnimationLoop(() => {
         // SHIELD absorbs the hit — one-time use, grant invincibility so same obstacle can't re-hit
         gameState.powerUp = null
         gameState.player.invincibleTimer = INVINCIBLE_DURATION
+        gameState.cameraShake = { intensity: 0.08, duration: 0.15 }
       } else {
         particleApi.burstHit(playerApi.group.position.clone())
         try { audioApi.play('hit') } catch(e) {}
         gameState.hp -= 1
         gameState.player.invincibleTimer = INVINCIBLE_DURATION
+        gameState.cameraShake = { intensity: 0.15, duration: 0.3 }
         if (gameState.hp <= 0) {
           gameState.status = 'GAME_OVER'
           showScreen('GAME_OVER', gameState)
@@ -181,6 +190,18 @@ renderer.setAnimationLoop(() => {
         gameState.status = 'GAME_OVER'
         showScreen('GAME_OVER', gameState)
       })
+    }
+
+    // camera shake
+    if (gameState.cameraShake.duration > 0) {
+      camera.position.x = CAM_BASE_X + (Math.random() - 0.5) * gameState.cameraShake.intensity
+      camera.position.y = CAM_BASE_Y + (Math.random() - 0.5) * gameState.cameraShake.intensity
+      gameState.cameraShake.duration -= realDelta
+      if (gameState.cameraShake.duration <= 0) {
+        gameState.cameraShake.duration = 0
+        camera.position.x = CAM_BASE_X
+        camera.position.y = CAM_BASE_Y
+      }
     }
 
     updateHud(gameState)

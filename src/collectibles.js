@@ -96,7 +96,7 @@ export function initCollectibles(scene) {
     item.entry.mesh.visible = false
     item.entry.active = false
     if (item.type === 'SHARD') {
-      gameState.score += 10
+      gameState.shardBonus += 10
     } else {
       // Power-up
       const duration = POWERUP_DURATIONS[item.type]

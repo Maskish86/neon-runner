@@ -39,7 +39,7 @@ const collectibleApi = initCollectibles(scene)
 function makeGameState(skinColor = 'CYAN') {
   return {
     status: 'TITLE',
-    score: 0, distance: 0, speed: BASE_SPEED, hp: 3,
+    score: 0, shardBonus: 0, distance: 0, speed: BASE_SPEED, hp: 3,
     skinColor,
     player: {
       lane: 1, targetLane: 1, laneT: 1,
@@ -115,7 +115,7 @@ renderer.setAnimationLoop(() => {
   if (gameState.status === 'PLAYING') {
     gameState.distance += gameState.speed * delta
     gameState.speed = Math.min(MAX_SPEED, BASE_SPEED + gameState.distance * ACCEL_FACTOR)
-    gameState.score = Math.floor(gameState.distance)
+    gameState.score = Math.floor(gameState.distance) + gameState.shardBonus
 
     updateScene(delta, gameState.speed)
     playerApi.update(delta, gameState)

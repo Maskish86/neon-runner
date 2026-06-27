@@ -67,12 +67,13 @@ export function initDrone(scene) {
   let attackTimer = 0
   let nextInterval = 48   // first beam at 48s
   let beamType = 'LOW'    // alternates each attack
-  let blinkTimer = 0
+  let blinkStep = 0   // 0–5: ON/OFF × 3 beats
+  let stepTimer = 0
 
   function startWarning() {
     phase = 'WARNING'
-    phaseTimer = 1.5
-    blinkTimer = 0.4
+    blinkStep = 0
+    stepTimer = 0
     droneGroup.position.set(0, 5, 0)
     droneGroup.visible = true
     if (!warnEl.parentElement) document.getElementById('hud').appendChild(warnEl)
@@ -106,22 +107,23 @@ export function initDrone(scene) {
       return { beamHit: false, warningStarted: false, beamType }
     }
 
-    phaseTimer -= delta
+    if (phase !== 'WARNING') phaseTimer -= delta
 
     if (phase === 'WARNING') {
-      blinkTimer -= delta
-      if (blinkTimer <= 0) {
-        warnEl.style.opacity = warnEl.style.opacity === '0' ? '1' : '0'
-        blinkTimer = 0.1 + (phaseTimer / 1.5) * 0.3  // 0.4s → 0.1s as beam approaches
-      }
-      if (phaseTimer <= 0) {
-        phase = 'BEAM'
-        phaseTimer = 0.5
-        warnEl.style.opacity = '1'
-        warnEl.style.display = 'none'
-        const beam = beamType === 'LOW' ? lowBeam : highBeam
-        beam.visible = true
-        beam.material.opacity = 0.9
+      stepTimer += delta
+      if (stepTimer >= 0.25) {
+        stepTimer -= 0.25
+        blinkStep++
+        warnEl.style.opacity = blinkStep % 2 === 0 ? '1' : '0'
+        if (blinkStep >= 6) {
+          phase = 'BEAM'
+          phaseTimer = 0.5
+          warnEl.style.opacity = '1'
+          warnEl.style.display = 'none'
+          const beam = beamType === 'LOW' ? lowBeam : highBeam
+          beam.visible = true
+          beam.material.opacity = 0.9
+        }
       }
       return { beamHit: false, warningStarted: false, beamType }
     }
@@ -161,7 +163,8 @@ export function initDrone(scene) {
     phaseTimer = 0
     attackTimer = 0
     nextInterval = 48
-    blinkTimer = 0
+    blinkStep = 0
+    stepTimer = 0
     beamType = 'LOW'
     droneGroup.visible = false
     lowBeam.visible = false

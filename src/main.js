@@ -45,6 +45,7 @@ composer.addPass(new UnrealBloomPass(
 
 const pmrem = new THREE.PMREMGenerator(renderer)
 scene.environment = pmrem.fromScene(new RoomEnvironment()).texture
+scene.environmentIntensity = 0.15
 pmrem.dispose()
 
 const CAM_BASE_X = 0

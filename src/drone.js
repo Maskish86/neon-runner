@@ -67,10 +67,13 @@ export function initDrone(scene) {
   let attackTimer = 0
   let nextInterval = 48   // first beam at 48s
   let beamType = 'LOW'    // alternates each attack
+  let blinkStep = 0   // 0–5: ON/OFF × 3 beats
+  let stepTimer = 0
 
   function startWarning() {
     phase = 'WARNING'
-    phaseTimer = 1.5
+    blinkStep = 0
+    stepTimer = 0
     droneGroup.position.set(0, 5, 0)
     droneGroup.visible = true
     if (!warnEl.parentElement) document.getElementById('hud').appendChild(warnEl)
@@ -104,18 +107,27 @@ export function initDrone(scene) {
       return { beamHit: false, warningStarted: false, beamType }
     }
 
-    phaseTimer -= delta
+    if (phase !== 'WARNING') phaseTimer -= delta
 
     if (phase === 'WARNING') {
-      if (phaseTimer <= 0) {
-        phase = 'BEAM'
-        phaseTimer = 0.5
-        warnEl.style.display = 'none'
-        const beam = beamType === 'LOW' ? lowBeam : highBeam
-        beam.visible = true
-        beam.material.opacity = 0.9
+      let beamBeat = false
+      stepTimer += delta
+      if (stepTimer >= 0.25) {
+        stepTimer -= 0.25
+        blinkStep++
+        warnEl.style.opacity = blinkStep % 2 === 0 ? '1' : '0'
+        if (blinkStep === 2 || blinkStep === 4) beamBeat = true
+        if (blinkStep >= 6) {
+          phase = 'BEAM'
+          phaseTimer = 0.5
+          warnEl.style.opacity = '1'
+          warnEl.style.display = 'none'
+          const beam = beamType === 'LOW' ? lowBeam : highBeam
+          beam.visible = true
+          beam.material.opacity = 0.9
+        }
       }
-      return { beamHit: false, warningStarted: false, beamType }
+      return { beamHit: false, warningStarted: false, beamBeat, beamType }
     }
 
     if (phase === 'BEAM') {
@@ -152,12 +164,15 @@ export function initDrone(scene) {
     phase = 'IDLE'
     phaseTimer = 0
     attackTimer = 0
-    nextInterval = 12
+    nextInterval = 48
+    blinkStep = 0
+    stepTimer = 0
     beamType = 'LOW'
     droneGroup.visible = false
     lowBeam.visible = false
     highBeam.visible = false
     droneMat.emissive.setHex(0xff2200)
+    warnEl.style.opacity = '1'
     warnEl.style.display = 'none'
   }
 

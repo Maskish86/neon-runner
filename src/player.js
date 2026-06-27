@@ -15,7 +15,7 @@ function buildHumanoid(colors) {
     envMapIntensity: 0.2,
   })
 
-  const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat(0.6))
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat(0.8))
   head.position.y = 1.6
   head.name = 'head'
 
@@ -24,30 +24,31 @@ function buildHumanoid(colors) {
     new THREE.MeshStandardMaterial({
       color: colors.emissive,
       emissive: colors.emissive,
-      emissiveIntensity: 1.5,
+      emissiveIntensity: 2.0,
       roughness: 0,
       metalness: 1,
+      envMapIntensity: 0.2,
     })
   )
   visor.position.set(0, -0.04, 0.22)
   visor.name = 'visor'
   head.add(visor)
 
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.3), mat(0.5))
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.3), mat(0.7))
   torso.position.y = 1.1
   torso.name = 'torso'
 
-  const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.5, 0.15), mat(0.3))
+  const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.5, 0.15), mat(0.5))
   lArm.position.set(-0.35, 1.05, 0)
   lArm.name = 'lArm'
-  const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.5, 0.15), mat(0.3))
+  const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.5, 0.15), mat(0.5))
   rArm.position.set(0.35, 1.05, 0)
   rArm.name = 'rArm'
 
-  const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.55, 0.18), mat(0.4))
+  const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.55, 0.18), mat(0.6))
   lLeg.position.set(-0.15, 0.5, 0)
   lLeg.name = 'lLeg'
-  const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.55, 0.18), mat(0.4))
+  const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.55, 0.18), mat(0.6))
   rLeg.position.set(0.15, 0.5, 0)
   rLeg.name = 'rLeg'
 

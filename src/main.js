@@ -28,7 +28,7 @@ document.body.prepend(renderer.domElement)
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0x0a0010)
 scene.fog = new THREE.FogExp2(0x0a0018, 0.008)
-scene.add(new THREE.AmbientLight(0x110022, 0.4))
+scene.add(new THREE.AmbientLight(0x221133, 1.0))
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300)
 camera.position.set(0, 4, 8)
@@ -38,14 +38,14 @@ const composer = new EffectComposer(renderer)
 composer.addPass(new RenderPass(scene, camera))
 composer.addPass(new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.6,   // strength
+  0.7,   // strength
   0.5,   // radius
-  0.7    // threshold — only high emissive (beams, rails, shards) glow
+  0.55   // threshold
 ))
 
 const pmrem = new THREE.PMREMGenerator(renderer)
 scene.environment = pmrem.fromScene(new RoomEnvironment()).texture
-scene.environmentIntensity = 0.15
+scene.environmentIntensity = 0.4
 pmrem.dispose()
 
 const CAM_BASE_X = 0

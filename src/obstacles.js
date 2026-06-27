@@ -223,6 +223,12 @@ export function initObstacles(scene) {
         const spinArm = obj.getObjectByName('spinArm')
         if (spinArm) spinArm.rotation.y = obj.userData.spinAngle
         obj.userData.hazardAABB = calcSpinnerAABB(obj.userData.spinAngle)
+        // Strobe flashes when arm spans across lane (|cos| > 0.7 = danger zone)
+        const strobe = obj.getObjectByName('strobe')
+        if (strobe) {
+          const inDanger = Math.abs(Math.cos(obj.userData.spinAngle)) > 0.7
+          strobe.material.emissiveIntensity = inDanger ? 4 : 0.5
+        }
       }
 
       if (obj.position.z > RECYCLE_Z) {

@@ -659,12 +659,54 @@ function wideHurdleB() {
   return group
 }
 function spinnerBotA() {
-  const g = patrolBotA()
-  g.userData.type = 'SPINNER_BOT'
-  g.userData.avoidWith = 'TIMING'
-  g.userData.spinAngle = 0
-  g.userData.spinSpeed = 1.5
-  return g
+  const group = new THREE.Group()
+  const bodyMat = emissiveMat(0x220033, 0xaa00ff, 1.5)
+  // Legs
+  ;[-0.1, 0.1].forEach(x => {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.28, 0.12), emissiveMat(0x110022, 0x7700cc, 1))
+    leg.position.set(x, 0.14, 0)
+    group.add(leg)
+  })
+  // Body
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 0.3), bodyMat)
+  body.position.y = 0.52
+  group.add(body)
+  // Chest warning strobe
+  const strobeMat = emissiveMat(0x330000, 0xff2200, 3)
+  const strobe = new THREE.Mesh(new THREE.SphereGeometry(0.05, 6, 6), strobeMat)
+  strobe.position.set(0, 0.6, 0.16)
+  strobe.name = 'strobe'
+  group.add(strobe)
+  // Arm group — rotates around Y axis
+  const armGroup = new THREE.Group()
+  armGroup.position.y = 0.75
+  armGroup.name = 'spinArm'
+  // Two arm segments (opposite directions)
+  ;[-1, 1].forEach(dir => {
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.06, 0.06), emissiveMat(0x220033, 0xaa00ff, 2))
+    arm.position.set(dir * 0.325, 0, 0)
+    armGroup.add(arm)
+    // Glowing tip
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), emissiveMat(0x330044, 0xff00ff, 4))
+    tip.position.set(dir * 0.65, 0, 0)
+    armGroup.add(tip)
+  })
+  group.add(armGroup)
+  // Head
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.2, 0.22), bodyMat)
+  head.position.y = 0.85
+  group.add(head)
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x220033, emissive: 0xdd00ff, emissiveIntensity: 4 })
+  const eye = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.06, 0.04), eyeMat)
+  eye.position.set(0, 0.87, 0.12)
+  group.add(eye)
+  group.userData.type = 'SPINNER_BOT'
+  group.userData.avoidWith = 'TIMING'
+  group.userData.spinAngle = 0
+  group.userData.spinSpeed = 1.5
+  group.userData.time = 0
+  group.userData.hazardAABB = calcSpinnerAABB(0)
+  return group
 }
 function chargerBotA() {
   const g = patrolBotA()

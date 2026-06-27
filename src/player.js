@@ -10,8 +10,9 @@ function buildHumanoid(colors) {
     color: colors.main,
     emissive: colors.emissive,
     emissiveIntensity,
-    roughness: 0.3,
-    metalness: 0.6,
+    roughness: 0.6,
+    metalness: 0.2,
+    envMapIntensity: 0.2,
   })
 
   const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat(0.6))

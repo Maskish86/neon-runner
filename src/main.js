@@ -39,7 +39,7 @@ composer.addPass(new RenderPass(scene, camera))
 composer.addPass(new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
   0.7,   // strength
-  0.5,   // radius
+  0.3,   // radius
   0.55   // threshold
 ))
 
@@ -156,7 +156,7 @@ renderer.setAnimationLoop(() => {
     gameState.speed = Math.min(MAX_SPEED, BASE_SPEED + gameState.distance * ACCEL_FACTOR)
     gameState.score = Math.floor(gameState.distance) + gameState.shardBonus
 
-    updateScene(delta, gameState.speed, camera.position.z)
+    updateScene(delta, gameState.speed)
     const prevYPos = gameState.player.yPos
     playerApi.update(delta, gameState)
     if (prevYPos > 0.05 && gameState.player.yPos <= 0 && gameState.player.action !== 'SLIDING') {
@@ -245,7 +245,7 @@ renderer.setAnimationLoop(() => {
 
     updateHud(gameState)
   } else if (gameState.status === 'TITLE') {
-    updateScene(delta, 4, camera.position.z)
+    updateScene(delta, 4)
   }
 
   composer.render()

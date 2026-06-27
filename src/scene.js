@@ -36,9 +36,9 @@ function makeGroundMaterial() {
   tex.repeat.set(1, TILE_COUNT)
   return new THREE.MeshStandardMaterial({
     map: tex,
-    roughness: 0.15,
-    metalness: 0.5,
-    envMapIntensity: 1.0,
+    roughness: 0.6,
+    metalness: 0.0,
+    envMapIntensity: 0.0,
   })
 }
 
@@ -66,7 +66,7 @@ function makeBuildings(scene) {
   const winMeshes = winColors.map(c =>
     new THREE.InstancedMesh(
       winGeo,
-      new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 2 }),
+      new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 1.0 }),
       7  // 7 strips per color = 21 total
     )
   )
@@ -89,7 +89,7 @@ function makeBuildings(scene) {
       dummy.position.set(
         side * (8 + Math.random() * spread),
         h / 2 + 0.5,
-        -Math.random() * 200
+        -(50 + Math.random() * 150)
       )
       dummy.scale.set(w, h, d)
       dummy.updateMatrix()
@@ -204,12 +204,6 @@ export function initScene(scene) {
   dirLight.shadow.camera.top = 10
   dirLight.shadow.camera.bottom = -10
   scene.add(dirLight)
-  const pointLeft = new THREE.PointLight(0x00ffff, 3, 20)
-  pointLeft.position.set(-8, 6, -25)
-  scene.add(pointLeft)
-  const pointRight = new THREE.PointLight(0xff00ff, 3, 20)
-  pointRight.position.set(8, 6, -25)
-  scene.add(pointRight)
 
   // Ground tiles
   const groundGroup = new THREE.Group()
@@ -237,7 +231,7 @@ export function initScene(scene) {
   let totalDist = 0
   const dummy = new THREE.Object3D()
 
-  function updateScene(delta, speed, cameraZ = 0) {
+  function updateScene(delta, speed) {
     totalDist += speed * delta
     // Scroll ground tiles
     groundGroup.children.forEach(tile => {

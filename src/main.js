@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 import { BASE_SPEED, MAX_SPEED, ACCEL_FACTOR, JUMP_VELOCITY, SLIDE_DURATION, INVINCIBLE_DURATION } from './constants.js'
 import { initScene } from './scene.js'
 import { initPlayer } from './player.js'
@@ -26,8 +27,8 @@ document.body.prepend(renderer.domElement)
 
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0x0a0010)
-scene.fog = new THREE.FogExp2(0x110022, 0.018)
-scene.add(new THREE.AmbientLight(0x221133, 2))
+scene.fog = new THREE.FogExp2(0x0a0018, 0.008)
+scene.add(new THREE.AmbientLight(0x110022, 0.4))
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300)
 camera.position.set(0, 4, 8)
@@ -41,6 +42,10 @@ composer.addPass(new UnrealBloomPass(
   0.6,   // radius
   0.35   // threshold — emissiveIntensity > ~1 will glow
 ))
+
+const pmrem = new THREE.PMREMGenerator(renderer)
+scene.environment = pmrem.fromScene(new RoomEnvironment()).texture
+pmrem.dispose()
 
 const CAM_BASE_X = 0
 const CAM_BASE_Y = 4

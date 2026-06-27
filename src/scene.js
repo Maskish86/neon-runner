@@ -11,23 +11,35 @@ function makeGroundMaterial() {
   const ctx = canvas.getContext('2d')
   ctx.fillStyle = '#0a0018'
   ctx.fillRect(0, 0, size, size)
-  ctx.strokeStyle = '#220044'
+  // Grid lines
+  ctx.strokeStyle = '#0044aa'
   ctx.lineWidth = 1
   const step = size / 8
   for (let i = 0; i <= 8; i++) {
     ctx.beginPath(); ctx.moveTo(i * step, 0); ctx.lineTo(i * step, size); ctx.stroke()
     ctx.beginPath(); ctx.moveTo(0, i * step); ctx.lineTo(size, i * step); ctx.stroke()
   }
-  // Lane dividers in cyan
-  ctx.strokeStyle = '#004444'
+  // Speed stripes (thin center verticals)
+  ctx.strokeStyle = '#001133'
+  ctx.lineWidth = 8
+  ;[size * 0.45, size * 0.55].forEach(x => {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, size); ctx.stroke()
+  })
+  // Lane dividers
+  ctx.strokeStyle = '#00aaaa'
   ctx.lineWidth = 3
-  ;[size * (3/8), size * (5/8)].forEach(x => {
+  ;[size * (3 / 8), size * (5 / 8)].forEach(x => {
     ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, size); ctx.stroke()
   })
   const tex = new THREE.CanvasTexture(canvas)
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping
   tex.repeat.set(1, TILE_COUNT)
-  return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9, metalness: 0.1 })
+  return new THREE.MeshStandardMaterial({
+    map: tex,
+    roughness: 0.15,
+    metalness: 0.5,
+    envMapIntensity: 1.0,
+  })
 }
 
 function makeBuildings(scene) {
@@ -121,6 +133,7 @@ export function initScene(scene) {
   for (let i = 0; i < TILE_COUNT; i++) {
     const tile = new THREE.Mesh(groundGeo, groundMat)
     tile.position.z = -i * TILE_LENGTH
+    tile.receiveShadow = true
     groundGroup.add(tile)
   }
   scene.add(groundGroup)

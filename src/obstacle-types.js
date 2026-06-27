@@ -252,8 +252,87 @@ function hologramSignC() {
   return group
 }
 
-function neonPipeB() { return neonPipeA() }
-function neonPipeC() { return neonPipeA() }
+function neonPipeB() {
+  const group = new THREE.Group()
+  const configs = [
+    { y: 1.05, r: 0.1, len: 2.6 },  // lowest — sets collision floor
+    { y: 1.25, r: 0.08, len: 2.3 },
+    { y: 1.45, r: 0.06, len: 1.8 },
+  ]
+  configs.forEach(({ y, r, len }, i) => {
+    const geo = new THREE.CylinderGeometry(r, r, len, 8)
+    geo.rotateZ(Math.PI / 2)
+    const pipe = new THREE.Mesh(geo, emissiveMat(0x004444, 0x00ffff, 1.5 - i * 0.3))
+    pipe.position.y = y
+    if (i === 0) pipe.name = 'pipe'
+    group.add(pipe)
+  })
+  // Bundling clamps at 3 positions
+  const clampMat = emissiveMat(0x003333, 0x006666, 1)
+  ;[-0.7, 0, 0.7].forEach(x => {
+    const clamp = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.5, 0.12), clampMat)
+    clamp.position.set(x, 1.2, 0)
+    group.add(clamp)
+  })
+  group.userData.type = 'NEON_PIPE'
+  group.userData.avoidWith = 'SLIDE'
+  group.userData.time = 0
+  group.userData.hazardAABB = { minX: -1.3, maxX: 1.3, minY: 0.95, maxY: 1.45, minZ: -0.15, maxZ: 0.15 }
+  return group
+}
+
+function neonPipeC() {
+  const group = new THREE.Group()
+  // Main pipe
+  const pipeGeo = new THREE.CylinderGeometry(0.14, 0.14, 2.2, 8)
+  pipeGeo.rotateZ(Math.PI / 2)
+  const pipe = new THREE.Mesh(pipeGeo, emissiveMat(0x004444, 0x00ffff))
+  pipe.position.y = 1.2
+  pipe.name = 'pipe'
+  group.add(pipe)
+  // Valve wheels at each end
+  const valveMat = emissiveMat(0x336666, 0x00cccc, 2)
+  ;[-1.1, 1.1].forEach(x => {
+    // Wheel rim
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.03, 6, 12), valveMat)
+    rim.rotation.y = Math.PI / 2
+    rim.position.set(x, 1.2, 0)
+    group.add(rim)
+    // Wheel spokes (3)
+    ;[0, Math.PI / 3 * 2, Math.PI / 3 * 4].forEach(angle => {
+      const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.44, 0.04), valveMat)
+      spoke.position.set(x, 1.2, 0)
+      spoke.rotation.x = angle
+      group.add(spoke)
+    })
+    // Flange
+    const flange = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.06, 10), valveMat)
+    flange.rotation.z = Math.PI / 2
+    flange.position.set(x, 1.2, 0)
+    group.add(flange)
+  })
+  // Pressure gauge (center top)
+  const gaugeMat = emissiveMat(0x333300, 0xffcc00, 2)
+  const gaugeBody = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.08, 10), gaugeMat)
+  gaugeBody.position.set(0, 1.36, 0)
+  const gaugeNeedle = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.1, 0.02), emissiveMat(0x440000, 0xff2200, 3))
+  gaugeNeedle.position.set(0, 1.41, 0)
+  gaugeNeedle.rotation.z = 0.4
+  group.add(gaugeBody, gaugeNeedle)
+  // Pipe segments — weld rings
+  const weldMat = emissiveMat(0x006666, 0x00ffff, 1)
+  ;[-0.55, 0, 0.55].forEach(x => {
+    const weld = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.04, 10), weldMat)
+    weld.rotation.z = Math.PI / 2
+    weld.position.set(x, 1.2, 0)
+    group.add(weld)
+  })
+  group.userData.type = 'NEON_PIPE'
+  group.userData.avoidWith = 'SLIDE'
+  group.userData.time = 0
+  group.userData.hazardAABB = { minX: -1.3, maxX: 1.3, minY: 0.95, maxY: 1.45, minZ: -0.15, maxZ: 0.15 }
+  return group
+}
 
 function gapB() {
   const group = new THREE.Group()
@@ -294,7 +373,47 @@ function gapB() {
   group.userData.hazardAABB = { minX: -1.2, maxX: 1.2, minY: -10, maxY: 0.05, minZ: -1.5, maxZ: 1.5 }
   return group
 }
-function laserGateB() { return laserGateA() }
+function laserGateB() {
+  const group = new THREE.Group()
+  const postMat = emissiveMat(0x440000, 0xff0000, 2)
+  // Posts (same as A)
+  ;[-1.1, 1.1].forEach(x => {
+    const base = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.3, 0.14), postMat)
+    base.position.set(x, 0.15, 0)
+    const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.8, 0.08), postMat)
+    shaft.position.set(x, 1.05, 0)
+    group.add(base, shaft)
+  })
+  // Arch top — approximated with 5 box segments forming a curve
+  const archMat = emissiveMat(0x440000, 0xff0000, 2)
+  const archSegs = 5
+  for (let i = 0; i < archSegs; i++) {
+    const t = i / (archSegs - 1)   // 0 → 1
+    const angle = Math.PI + t * Math.PI  // π → 2π (bottom half of circle = arch)
+    const r = 1.2
+    const cx = Math.cos(angle) * r   // -1.2 → 1.2
+    const cy = Math.sin(angle) * r + 2.1  // 0 at ends, +r at top
+    const seg = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.5, 0.08), archMat)
+    seg.position.set(cx, cy, 0)
+    seg.rotation.z = angle + Math.PI / 2
+    group.add(seg)
+  }
+  // Beam (same height as A)
+  const beam = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.06, 0.06), emissiveMat(0x440000, 0xff0000, 3))
+  beam.position.y = 1.2
+  beam.name = 'beam'
+  group.add(beam)
+  const beam2 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.03, 0.03), emissiveMat(0x220000, 0xff4400, 2))
+  beam2.position.y = 1.1
+  beam2.name = 'beam2'
+  group.add(beam2)
+  group.userData.type = 'LASER_GATE'
+  group.userData.avoidWith = 'SLIDE'
+  group.userData.blinkTimer = 0
+  group.userData.active = true
+  group.userData.hazardAABB = { minX: -1.1, maxX: 1.1, minY: 1.07, maxY: 1.23, minZ: -0.03, maxZ: 0.03 }
+  return group
+}
 function patrolBotB() { return patrolBotA() }
 function patrolBotC() { return patrolBotA() }
 function wideWallA() {

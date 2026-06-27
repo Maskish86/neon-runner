@@ -160,6 +160,49 @@ function makeSkyline() {
   return plane
 }
 
+function makeRails() {
+  const group = new THREE.Group()
+  const railGeo = new THREE.BoxGeometry(0.06, 0.12, TILE_LENGTH)
+  const leftMat = new THREE.MeshStandardMaterial({
+    color: 0x004444, emissive: 0x00ffff, emissiveIntensity: 3,
+  })
+  const rightMat = new THREE.MeshStandardMaterial({
+    color: 0x440044, emissive: 0xff00ff, emissiveIntensity: 3,
+  })
+  for (let i = 0; i < TILE_COUNT; i++) {
+    const zPos = -i * TILE_LENGTH
+    const left = new THREE.Mesh(railGeo, leftMat)
+    left.position.set(-6.2, 0.06, zPos)
+    group.add(left)
+    const right = new THREE.Mesh(railGeo, rightMat)
+    right.position.set(6.2, 0.06, zPos)
+    group.add(right)
+  }
+  return group
+}
+
+function makeArches() {
+  const group = new THREE.Group()
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x220044, emissive: 0x9900ff, emissiveIntensity: 2,
+  })
+  const postGeo = new THREE.BoxGeometry(0.08, 3, 0.08)
+  const barGeo  = new THREE.BoxGeometry(11, 0.06, 0.06)
+  const archSpacing = 20
+
+  for (let i = 0; i < 3; i++) {
+    const zPos = -i * archSpacing
+    const left  = new THREE.Mesh(postGeo, mat)
+    left.position.set(-5.5, 1.5, zPos)
+    const right = new THREE.Mesh(postGeo, mat)
+    right.position.set(5.5, 1.5, zPos)
+    const bar   = new THREE.Mesh(barGeo, mat)
+    bar.position.set(0, 3, zPos)
+    group.add(left, right, bar)
+  }
+  return group
+}
+
 export function initScene(scene) {
   // Lights
   const dirLight = new THREE.DirectionalLight(0x9944ff, 2)
@@ -194,6 +237,12 @@ export function initScene(scene) {
   }
   scene.add(groundGroup)
 
+  const railGroup = makeRails()
+  scene.add(railGroup)
+
+  const archGroup = makeArches()
+  scene.add(archGroup)
+
   // Buildings
   const { dark, bright, windowed, windows } = makeBuildings(scene)
   const buildingMeshes = [dark, bright, windowed, ...windows]
@@ -214,6 +263,26 @@ export function initScene(scene) {
         tile.position.z -= TILE_LENGTH * TILE_COUNT
       }
     })
+    // Scroll rails (same cadence as ground tiles)
+    railGroup.children.forEach(rail => {
+      rail.position.z += speed * delta
+      if (rail.position.z > TILE_LENGTH) {
+        rail.position.z -= TILE_LENGTH * TILE_COUNT
+      }
+    })
+
+    // Scroll arches
+    const archSpacing = 20
+    const archTotal = archSpacing * 3
+    archGroup.children.forEach((part, idx) => {
+      part.position.z += speed * delta
+      // Each arch is 3 parts (left post, right post, bar) — group by arch index
+      const archIdx = Math.floor(idx / 3)
+      if (part.position.z > archSpacing) {
+        part.position.z -= archTotal
+      }
+    })
+
     // Parallax buildings (30% speed)
     const dummy = new THREE.Object3D()
     buildingMeshes.forEach(mesh => {

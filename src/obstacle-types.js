@@ -414,8 +414,100 @@ function laserGateB() {
   group.userData.hazardAABB = { minX: -1.1, maxX: 1.1, minY: 1.07, maxY: 1.23, minZ: -0.03, maxZ: 0.03 }
   return group
 }
-function patrolBotB() { return patrolBotA() }
-function patrolBotC() { return patrolBotA() }
+function patrolBotB() {
+  const group = new THREE.Group()
+  const bodyMat = emissiveMat(0x003300, 0x00ff44, 1.5)
+  // Legs
+  ;[-0.1, 0.1].forEach(x => {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.3, 0.12), emissiveMat(0x002200, 0x00cc33, 1))
+    leg.position.set(x, 0.15, 0)
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.06, 0.18), emissiveMat(0x002200, 0x00cc33, 1))
+    foot.position.set(x, 0.0, 0.03)
+    group.add(leg, foot)
+  })
+  // Slim torso
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.7, 0.25), bodyMat)
+  torso.position.y = 0.65
+  torso.name = 'botBody'
+  group.add(torso)
+  // Shoulder armor plates
+  ;[-0.22, 0.22].forEach(x => {
+    const shoulder = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.2, 0.15), emissiveMat(0x002200, 0x00ff44, 2))
+    shoulder.position.set(x, 0.8, 0)
+    group.add(shoulder)
+  })
+  // Tall head with single large eye
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.3, 0.24), bodyMat)
+  head.position.y = 1.15
+  head.name = 'botHead'
+  group.add(head)
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x001100, emissive: 0x00ff88, emissiveIntensity: 4 })
+  const eye = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.04), eyeMat)
+  eye.position.set(0, 1.16, 0.14)
+  group.add(eye)
+  // Antenna
+  const ant = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.35, 6), bodyMat)
+  ant.position.set(0, 1.48, 0)
+  const antTip = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), emissiveMat(0x003300, 0x00ffaa, 4))
+  antTip.position.set(0, 1.68, 0)
+  group.add(ant, antTip)
+  group.userData.type = 'PATROL_BOT'
+  group.userData.avoidWith = 'LANE'
+  group.userData.patrolDir = 1
+  group.userData.patrolSpeed = 2.5
+  group.userData.time = 0
+  group.userData.hazardAABB = { minX: -0.25, maxX: 0.25, minY: 0, maxY: 1.35, minZ: -0.2, maxZ: 0.2 }
+  return group
+}
+function patrolBotC() {
+  const group = new THREE.Group()
+  const bodyMat = emissiveMat(0x331100, 0xff6600, 1.5)
+  // Short thick legs
+  ;[-0.18, 0.18].forEach(x => {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.25, 0.2), emissiveMat(0x221100, 0xff4400, 1))
+    leg.position.set(x, 0.125, 0)
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.07, 0.25), emissiveMat(0x221100, 0xff4400, 1))
+    foot.position.set(x, 0.0, 0.02)
+    group.add(leg, foot)
+  })
+  // Wide low body
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.55, 0.45), bodyMat)
+  torso.position.y = 0.55
+  torso.name = 'botBody'
+  group.add(torso)
+  // Chest vents
+  const ventMat = emissiveMat(0x220800, 0xff3300, 2)
+  ;[-0.15, 0, 0.15].forEach(x => {
+    const vent = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.04, 0.04), ventMat)
+    vent.position.set(x, 0.52, 0.24)
+    group.add(vent)
+  })
+  // Short wide head
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.22, 0.35), bodyMat)
+  head.position.y = 0.94
+  head.name = 'botHead'
+  group.add(head)
+  // Visor strip
+  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.07, 0.04), emissiveMat(0x220000, 0xff8800, 3))
+  visor.position.set(0, 0.95, 0.19)
+  group.add(visor)
+  // Shoulder spotlights
+  ;[-0.42, 0.42].forEach(x => {
+    const mount = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), emissiveMat(0x221100, 0xff4400, 1))
+    mount.position.set(x, 0.72, 0)
+    const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.1, 8), emissiveMat(0x332200, 0xffcc00, 3))
+    lens.rotation.z = Math.PI / 2
+    lens.position.set(x > 0 ? x + 0.08 : x - 0.08, 0.72, 0.12)
+    group.add(mount, lens)
+  })
+  group.userData.type = 'PATROL_BOT'
+  group.userData.avoidWith = 'LANE'
+  group.userData.patrolDir = 1
+  group.userData.patrolSpeed = 2.5
+  group.userData.time = 0
+  group.userData.hazardAABB = { minX: -0.25, maxX: 0.25, minY: 0, maxY: 1.35, minZ: -0.2, maxZ: 0.2 }
+  return group
+}
 function wideWallA() {
   const g = hologramSignA()
   g.userData.type = 'WIDE_WALL'

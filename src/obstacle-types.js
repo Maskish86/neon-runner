@@ -171,12 +171,52 @@ function gapB() { return gapA() }
 function laserGateB() { return laserGateA() }
 function patrolBotB() { return patrolBotA() }
 function patrolBotC() { return patrolBotA() }
-function wideWallA() { return hologramSignA() }
-function wideWallB() { return hologramSignA() }
-function wideHurdleA() { return neonPipeA() }
-function wideHurdleB() { return neonPipeA() }
-function spinnerBotA() { return patrolBotA() }
-function chargerBotA() { return patrolBotA() }
+function wideWallA() {
+  const g = hologramSignA()
+  g.userData.type = 'WIDE_WALL'
+  g.userData.avoidWith = 'JUMP'
+  g.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0, maxY: 1.9, minZ: -0.15, maxZ: 0.15 }
+  return g
+}
+function wideWallB() {
+  const g = hologramSignA()
+  g.userData.type = 'WIDE_WALL'
+  g.userData.avoidWith = 'JUMP'
+  g.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0, maxY: 1.9, minZ: -0.15, maxZ: 0.15 }
+  return g
+}
+function wideHurdleA() {
+  const g = neonPipeA()
+  g.userData.type = 'WIDE_HURDLE'
+  g.userData.avoidWith = 'SLIDE'
+  g.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0.95, maxY: 1.45, minZ: -0.15, maxZ: 0.15 }
+  return g
+}
+function wideHurdleB() {
+  const g = neonPipeA()
+  g.userData.type = 'WIDE_HURDLE'
+  g.userData.avoidWith = 'SLIDE'
+  g.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0.95, maxY: 1.45, minZ: -0.15, maxZ: 0.15 }
+  return g
+}
+function spinnerBotA() {
+  const g = patrolBotA()
+  g.userData.type = 'SPINNER_BOT'
+  g.userData.avoidWith = 'TIMING'
+  g.userData.spinAngle = 0
+  g.userData.spinSpeed = 1.5
+  return g
+}
+function chargerBotA() {
+  const g = patrolBotA()
+  g.userData.type = 'CHARGER_BOT'
+  g.userData.avoidWith = 'LANE'
+  g.userData.chargeState = 'APPROACH'
+  g.userData.windupTimer = 0
+  g.userData.chargeTimer = 0
+  g.userData.baseX = 0
+  return g
+}
 
 export const OBSTACLE_VARIANTS = {
   HOLOGRAM_SIGN: [hologramSignA, hologramSignB, hologramSignC],

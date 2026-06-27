@@ -14,7 +14,7 @@ describe('OBSTACLE_VARIANTS', () => {
     for (const [mechanic, variants] of Object.entries(OBSTACLE_VARIANTS)) {
       for (const factory of variants) {
         const group = factory()
-        expect(group.userData.type, `${mechanic} type`).toBeTruthy()
+        expect(group.userData.type, `${mechanic} type`).toBe(mechanic)
         expect(group.userData.avoidWith, `${mechanic} avoidWith`).toBeTruthy()
         const hz = group.userData.hazardAABB
         expect(hz, `${mechanic} hazardAABB`).toBeTruthy()

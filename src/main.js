@@ -38,9 +38,9 @@ const composer = new EffectComposer(renderer)
 composer.addPass(new RenderPass(scene, camera))
 composer.addPass(new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.8,   // strength
-  0.6,   // radius
-  0.35   // threshold — emissiveIntensity > ~1 will glow
+  0.6,   // strength
+  0.5,   // radius
+  0.7    // threshold — only high emissive (beams, rails, shards) glow
 ))
 
 const pmrem = new THREE.PMREMGenerator(renderer)

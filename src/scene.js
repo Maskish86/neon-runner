@@ -167,10 +167,10 @@ function makeRails() {
   const group = new THREE.Group()
   const railGeo = new THREE.BoxGeometry(0.06, 0.12, TILE_LENGTH)
   const leftMat = new THREE.MeshStandardMaterial({
-    color: 0x004444, emissive: 0x00ffff, emissiveIntensity: 1.5,
+    color: 0x004444, emissive: 0x00ffff, emissiveIntensity: 1.0,
   })
   const rightMat = new THREE.MeshStandardMaterial({
-    color: 0x440044, emissive: 0xff00ff, emissiveIntensity: 1.5,
+    color: 0x440044, emissive: 0xff00ff, emissiveIntensity: 1.0,
   })
   for (let i = 0; i < TILE_COUNT; i++) {
     const zPos = -i * TILE_LENGTH
@@ -202,10 +202,10 @@ export function initScene(scene) {
   dirLight.shadow.camera.bottom = -10
   scene.add(dirLight)
   const pointLeft = new THREE.PointLight(0x00ffff, 3, 30)
-  pointLeft.position.set(-8, 6, 0)
+  pointLeft.position.set(-8, 6, -15)
   scene.add(pointLeft)
   const pointRight = new THREE.PointLight(0xff00ff, 3, 30)
-  pointRight.position.set(8, 6, 0)
+  pointRight.position.set(8, 6, -15)
   scene.add(pointRight)
 
   // Ground tiles

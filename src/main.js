@@ -180,8 +180,8 @@ renderer.setAnimationLoop(() => {
     }
 
     particleApi.update(delta, gameState, camera)
-    const { beamHit, warningStarted, beamType } = droneApi.update(delta, gameState)
-    if (warningStarted) {
+    const { beamHit, warningStarted, beamBeat, beamType } = droneApi.update(delta, gameState)
+    if (warningStarted || beamBeat) {
       try { audioApi.play('beam_warn', beamType) } catch(e) {}
     }
     if (beamHit) {

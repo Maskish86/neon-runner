@@ -110,11 +110,13 @@ export function initDrone(scene) {
     if (phase !== 'WARNING') phaseTimer -= delta
 
     if (phase === 'WARNING') {
+      let beamBeat = false
       stepTimer += delta
       if (stepTimer >= 0.25) {
         stepTimer -= 0.25
         blinkStep++
         warnEl.style.opacity = blinkStep % 2 === 0 ? '1' : '0'
+        if (blinkStep === 2 || blinkStep === 4) beamBeat = true
         if (blinkStep >= 6) {
           phase = 'BEAM'
           phaseTimer = 0.5
@@ -125,7 +127,7 @@ export function initDrone(scene) {
           beam.material.opacity = 0.9
         }
       }
-      return { beamHit: false, warningStarted: false, beamType }
+      return { beamHit: false, warningStarted: false, beamBeat, beamType }
     }
 
     if (phase === 'BEAM') {

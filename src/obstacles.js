@@ -8,7 +8,7 @@ const RECYCLE_Z = 12
 const BASE_INTERVAL = 2.2
 const MIN_INTERVAL = 0.6
 
-export function initObstacles(scene) {
+export function initObstacles(scene, chargeWarnEl) {
   const allEntries = []
   for (const [mechanic, variants] of Object.entries(OBSTACLE_VARIANTS)) {
     for (const factory of variants) {
@@ -66,7 +66,6 @@ export function initObstacles(scene) {
     }
 
     let entry = pool.find(p => !p.active && p.mechanic === mechanic)
-             ?? pool.find(p => !p.active)
     if (!entry) return
 
     const isWide = mechanic === 'WIDE_WALL' || mechanic === 'WIDE_HURDLE'
@@ -153,8 +152,7 @@ export function initObstacles(scene) {
             : 1.5
         }
         // show/hide charge warning HUD
-        const warnEl = document.getElementById('charge-warn')
-        if (warnEl) warnEl.style.display = obj.userData.chargeState === 'WINDUP' ? 'block' : 'none'
+        if (chargeWarnEl) chargeWarnEl.style.display = obj.userData.chargeState === 'WINDUP' ? 'block' : 'none'
       } else {
         obj.position.z += speed * delta
       }
@@ -188,8 +186,13 @@ export function initObstacles(scene) {
         if (obj.position.x < LANES[0] - 1) obj.userData.patrolDir = 1
         const botBody = obj.getObjectByName('botBody')
         const botHead = obj.getObjectByName('botHead')
-        if (botBody) botBody.position.y = 0.5 + 0.08 * Math.sin(obj.userData.time * 5)
-        if (botHead) botHead.position.y = (botBody ? botBody.position.y : 0.5) + 0.5
+        if (botBody) {
+          const baseY = obj.userData.bodyBaseY ?? 0.5
+          botBody.position.y = baseY + 0.08 * Math.sin(obj.userData.time * 5)
+          if (botHead) botHead.position.y = botBody.position.y + 0.5
+        } else if (botHead) {
+          botHead.position.y = (obj.userData.bodyBaseY ?? 0.5) + 0.5
+        }
         obj.rotation.z = obj.userData.patrolDir * 0.06 * Math.sin(obj.userData.time * 5)
       }
 
@@ -203,13 +206,6 @@ export function initObstacles(scene) {
         obj.userData.time += delta
         const gapEdge = obj.getObjectByName('gapEdge')
         if (gapEdge) gapEdge.material.emissiveIntensity = 4 + 2 * Math.abs(Math.sin(obj.userData.time * 3))
-      }
-
-      if (type === 'WIDE_WALL') {
-        obj.userData.time += delta
-        // pulsing warning lights
-        const wl = obj.getObjectByName('warnLight')
-        // (no named mesh — skip; individual emissive fluctuation handled per-material is not needed here)
       }
 
       if (type === 'WIDE_HURDLE') {
@@ -235,8 +231,7 @@ export function initObstacles(scene) {
         obj.visible = false
         entry.active = false
         if (type === 'CHARGER_BOT') {
-          const warnEl = document.getElementById('charge-warn')
-          if (warnEl) warnEl.style.display = 'none'
+          if (chargeWarnEl) chargeWarnEl.style.display = 'none'
         }
       }
     })
@@ -248,8 +243,7 @@ export function initObstacles(scene) {
     lastLane = -1
     lastSpawnWasWide = false
     recentChargerCount = 0
-    const warnEl = document.getElementById('charge-warn')
-    if (warnEl) warnEl.style.display = 'none'
+    if (chargeWarnEl) chargeWarnEl.style.display = 'none'
   }
 
   return { update, getActive, reset }

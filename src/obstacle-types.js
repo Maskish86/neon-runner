@@ -307,6 +307,7 @@ function patrolBotA() {
   group.userData.patrolDir = 1
   group.userData.patrolSpeed = 2.5
   group.userData.time = 0
+  group.userData.bodyBaseY = 0.59
   group.userData.hazardAABB = { minX: -0.25, maxX: 0.25, minY: 0, maxY: 1.35, minZ: -0.2, maxZ: 0.2 }
   return group
 }
@@ -605,6 +606,7 @@ function patrolBotB() {
   group.userData.patrolDir = 1
   group.userData.patrolSpeed = 2.5
   group.userData.time = 0
+  group.userData.bodyBaseY = 0.65
   group.userData.hazardAABB = { minX: -0.25, maxX: 0.25, minY: 0, maxY: 1.35, minZ: -0.2, maxZ: 0.2 }
   return group
 }
@@ -654,6 +656,7 @@ function patrolBotC() {
   group.userData.patrolDir = 1
   group.userData.patrolSpeed = 2.5
   group.userData.time = 0
+  group.userData.bodyBaseY = 0.55
   group.userData.hazardAABB = { minX: -0.25, maxX: 0.25, minY: 0, maxY: 1.35, minZ: -0.2, maxZ: 0.2 }
   return group
 }
@@ -936,7 +939,7 @@ export function calcSpinnerAABB(spinAngle) {
 export function tickChargerBot(state, delta, speed, objZ) {
   const s = { ...state, time: state.time + delta }
   if (s.chargeState === 'APPROACH') {
-    if (objZ > -20) s.chargeState = 'WINDUP'
+    if (objZ > -20) { s.chargeState = 'WINDUP'; return { newState: s, dz: 0, vibX: 0 } }
     return { newState: s, dz: speed * delta, vibX: 0 }
   }
   if (s.chargeState === 'WINDUP') {

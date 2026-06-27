@@ -54,8 +54,11 @@ function makeBuildings(scene) {
   }
 
   const dark     = makeSet(36, 0x110022, 0x220033, 0.5)
+  dark.castShadow = true
   const bright   = makeSet(12, 0x1a0033, 0x330055, 0.8)
+  bright.castShadow = true
   const windowed = makeSet(12, 0x110022, 0x220033, 0.5)
+  windowed.castShadow = true
 
   // Window strips: thin emissive panels on building fronts
   const winColors = [0x00ffff, 0xff00ff, 0xffaa00]
@@ -172,9 +175,11 @@ function makeRails() {
   for (let i = 0; i < TILE_COUNT; i++) {
     const zPos = -i * TILE_LENGTH
     const left = new THREE.Mesh(railGeo, leftMat)
+    left.castShadow = true
     left.position.set(-6.2, 0.06, zPos)
     group.add(left)
     const right = new THREE.Mesh(railGeo, rightMat)
+    right.castShadow = true
     right.position.set(6.2, 0.06, zPos)
     group.add(right)
   }
@@ -193,10 +198,13 @@ function makeArches() {
   for (let i = 0; i < 3; i++) {
     const zPos = -i * archSpacing
     const left  = new THREE.Mesh(postGeo, mat)
+    left.castShadow = true
     left.position.set(-5.5, 1.5, zPos)
     const right = new THREE.Mesh(postGeo, mat)
+    right.castShadow = true
     right.position.set(5.5, 1.5, zPos)
     const bar   = new THREE.Mesh(barGeo, mat)
+    bar.castShadow = true
     bar.position.set(0, 3, zPos)
     group.add(left, right, bar)
   }
@@ -251,6 +259,7 @@ export function initScene(scene) {
   scene.add(makeSkyline())
 
   let totalDist = 0
+  const dummy = new THREE.Object3D()
 
   function updateScene(delta, speed, cameraZ = 0) {
     pointLeft.position.z = cameraZ
@@ -282,7 +291,6 @@ export function initScene(scene) {
     })
 
     // Parallax buildings (30% speed)
-    const dummy = new THREE.Object3D()
     buildingMeshes.forEach(mesh => {
       for (let i = 0; i < mesh.count; i++) {
         mesh.getMatrixAt(i, dummy.matrix)

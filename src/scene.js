@@ -167,10 +167,10 @@ function makeRails() {
   const group = new THREE.Group()
   const railGeo = new THREE.BoxGeometry(0.06, 0.12, TILE_LENGTH)
   const leftMat = new THREE.MeshStandardMaterial({
-    color: 0x004444, emissive: 0x00ffff, emissiveIntensity: 3,
+    color: 0x004444, emissive: 0x00ffff, emissiveIntensity: 1.5,
   })
   const rightMat = new THREE.MeshStandardMaterial({
-    color: 0x440044, emissive: 0xff00ff, emissiveIntensity: 3,
+    color: 0x440044, emissive: 0xff00ff, emissiveIntensity: 1.5,
   })
   for (let i = 0; i < TILE_COUNT; i++) {
     const zPos = -i * TILE_LENGTH

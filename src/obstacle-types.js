@@ -709,14 +709,57 @@ function spinnerBotA() {
   return group
 }
 function chargerBotA() {
-  const g = patrolBotA()
-  g.userData.type = 'CHARGER_BOT'
-  g.userData.avoidWith = 'LANE'
-  g.userData.chargeState = 'APPROACH'
-  g.userData.windupTimer = 0
-  g.userData.chargeTimer = 0
-  g.userData.baseX = 0
-  return g
+  const group = new THREE.Group()
+  const bodyMat = emissiveMat(0x002233, 0x00ccff, 1.5)
+  // Forward-leaning base legs (tilted forward)
+  ;[-0.15, 0.15].forEach(x => {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.32, 0.18), emissiveMat(0x001122, 0x0099cc, 1))
+    leg.position.set(x, 0.16, -0.06)
+    leg.rotation.x = -0.2
+    group.add(leg)
+  })
+  // Wide body, forward-swept
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.55, 0.42), bodyMat)
+  torso.position.set(0, 0.6, -0.05)
+  torso.rotation.x = -0.12
+  torso.name = 'chargerBody'
+  group.add(torso)
+  // Booster nozzles on chest (facing forward = -Z direction)
+  const nozzleMat = emissiveMat(0x002244, 0x0066ff, 2)
+  ;[-0.14, 0, 0.14].forEach(x => {
+    const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.07, 0.14, 8), nozzleMat)
+    nozzle.rotation.x = Math.PI / 2
+    nozzle.position.set(x, 0.58, -0.26)
+    group.add(nozzle)
+    // Nozzle glow
+    const glow = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.06, 8), emissiveMat(0x001133, 0x00eeff, 4))
+    glow.rotation.x = Math.PI / 2
+    glow.position.set(x, 0.58, -0.32)
+    group.add(glow)
+  })
+  // Forward-swept shoulder guards
+  ;[-0.38, 0.38].forEach(x => {
+    const guard = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.22, 0.35), emissiveMat(0x001133, 0x0088ff, 1.5))
+    guard.position.set(x, 0.72, -0.1)
+    guard.rotation.x = -0.2
+    group.add(guard)
+  })
+  // Head (low, armored)
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.2, 0.3), bodyMat)
+  head.position.set(0, 0.94, -0.04)
+  group.add(head)
+  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.07, 0.04), emissiveMat(0x001133, 0x00ffff, 4))
+  visor.position.set(0, 0.94, 0.12)
+  group.add(visor)
+  group.userData.type = 'CHARGER_BOT'
+  group.userData.avoidWith = 'LANE'
+  group.userData.chargeState = 'APPROACH'
+  group.userData.windupTimer = 0
+  group.userData.chargeTimer = 0
+  group.userData.time = 0
+  group.userData.baseX = 0
+  group.userData.hazardAABB = { minX: -0.25, maxX: 0.25, minY: 0, maxY: 1.1, minZ: -0.2, maxZ: 0.2 }
+  return group
 }
 
 export const OBSTACLE_VARIANTS = {

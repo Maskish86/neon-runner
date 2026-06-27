@@ -94,6 +94,12 @@ const audioApi = initAudio()
 initHud()
 showScreen('TITLE', gameState, (skin) => { gameState.skinColor = skin })
 
+const chargeWarnEl = document.createElement('div')
+chargeWarnEl.id = 'charge-warn'
+chargeWarnEl.textContent = '⚡ CHARGE'
+chargeWarnEl.style.display = 'none'
+document.getElementById('hud').appendChild(chargeWarnEl)
+
 // --- Input ---
 initInput(action => {
   if (gameState.status === 'TITLE' && (action === 'JUMP' || action === 'START')) {

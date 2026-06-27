@@ -202,10 +202,10 @@ export function initScene(scene) {
   dirLight.shadow.camera.bottom = -10
   scene.add(dirLight)
   const pointLeft = new THREE.PointLight(0x00ffff, 3, 30)
-  pointLeft.position.set(-8, 3, 0)
+  pointLeft.position.set(-8, 6, 0)
   scene.add(pointLeft)
   const pointRight = new THREE.PointLight(0xff00ff, 3, 30)
-  pointRight.position.set(8, 3, 0)
+  pointRight.position.set(8, 6, 0)
   scene.add(pointRight)
 
   // Ground tiles
@@ -235,8 +235,6 @@ export function initScene(scene) {
   const dummy = new THREE.Object3D()
 
   function updateScene(delta, speed, cameraZ = 0) {
-    pointLeft.position.z = cameraZ - 10
-    pointRight.position.z = cameraZ - 10
     totalDist += speed * delta
     // Scroll ground tiles
     groundGroup.children.forEach(tile => {

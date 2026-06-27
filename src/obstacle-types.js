@@ -163,11 +163,137 @@ function patrolBotA() {
 }
 
 // ─── STUBS (replaced in Tasks 2–6) ───────────────────────────────────────────
-function hologramSignB() { return hologramSignA() }
-function hologramSignC() { return hologramSignA() }
+function hologramSignB() {
+  const group = new THREE.Group()
+  // Angled support pole
+  const poleMat = emissiveMat(0x111122, 0x334466, 0.8)
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 2.3, 8), poleMat)
+  pole.position.set(0.7, 1.15, 0)
+  pole.rotation.z = 0.08
+  group.add(pole)
+  // Pole foot anchor
+  const foot = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.06, 0.22), poleMat)
+  foot.position.set(0.7, 0.03, 0)
+  group.add(foot)
+  // Panel
+  const panel = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.85, 0.08), emissiveMat(0x003366, 0x0066ff))
+  panel.position.y = 1.1
+  panel.name = 'signPanel'
+  group.add(panel)
+  // Diagonal stripe overlays
+  const stripeMat = emissiveMat(0x000033, 0x002299, 0.7)
+  ;[-0.4, 0.2, 0.8].forEach(offset => {
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.09, 0.05), stripeMat)
+    stripe.position.set(0, 0.4 + offset * 1.5, 0.07)
+    stripe.rotation.z = 0.28
+    group.add(stripe)
+  })
+  // Frame
+  const frameMat = emissiveMat(0x002244, 0x00aaff, 2.5)
+  ;[2.03, 0.17].forEach(y => {
+    const e = new THREE.Mesh(new THREE.BoxGeometry(2.25, 0.05, 0.05), frameMat)
+    e.position.set(0, y, 0.1)
+    group.add(e)
+  })
+  // Warning beacon on top
+  const beaconMat = emissiveMat(0x440000, 0xff4400, 3)
+  const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), beaconMat)
+  beacon.position.set(0, 2.15, 0)
+  beacon.name = 'beacon'
+  group.add(beacon)
+  const beaconRing = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.04, 12), emissiveMat(0x330000, 0xff2200, 2))
+  beaconRing.position.set(0, 2.14, 0)
+  group.add(beaconRing)
+  group.userData.type = 'HOLOGRAM_SIGN'
+  group.userData.avoidWith = 'JUMP'
+  group.userData.time = 0
+  group.userData.glitchTimer = 1.2 + Math.random() * 0.8
+  group.userData.hazardAABB = { minX: -0.9, maxX: 0.9, minY: 0, maxY: 1.9, minZ: -0.15, maxZ: 0.15 }
+  return group
+}
+
+function hologramSignC() {
+  const group = new THREE.Group()
+  const panelMat = emissiveMat(0x003366, 0x0066ff)
+  // Upper panel, slight outward angle
+  const upper = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.85, 0.08), panelMat)
+  upper.position.set(0, 1.6, 0)
+  upper.rotation.y = 0.06
+  upper.name = 'signPanel'
+  group.add(upper)
+  // Lower panel, opposite angle
+  const lower = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.85, 0.08), panelMat)
+  lower.position.set(0, 0.55, 0)
+  lower.rotation.y = -0.06
+  group.add(lower)
+  // Neon band between panels
+  const bandMat = emissiveMat(0x001133, 0x00ffff, 3)
+  const band = new THREE.Mesh(new THREE.BoxGeometry(2.15, 0.14, 0.14), bandMat)
+  band.position.set(0, 1.1, 0)
+  group.add(band)
+  // Side connector bars
+  const connMat = emissiveMat(0x002244, 0x00aaff, 2)
+  ;[-1.05, 1.05].forEach(x => {
+    const conn = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.0, 0.06), connMat)
+    conn.position.set(x, 1.08, 0)
+    group.add(conn)
+  })
+  // Top and bottom frame lines
+  ;[2.05, 0.1].forEach(y => {
+    const f = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.05, 0.05), connMat)
+    f.position.set(0, y, 0.1)
+    group.add(f)
+  })
+  group.userData.type = 'HOLOGRAM_SIGN'
+  group.userData.avoidWith = 'JUMP'
+  group.userData.time = 0
+  group.userData.glitchTimer = 1.2 + Math.random() * 0.8
+  group.userData.hazardAABB = { minX: -0.9, maxX: 0.9, minY: 0, maxY: 1.9, minZ: -0.15, maxZ: 0.15 }
+  return group
+}
+
 function neonPipeB() { return neonPipeA() }
 function neonPipeC() { return neonPipeA() }
-function gapB() { return gapA() }
+
+function gapB() {
+  const group = new THREE.Group()
+  // Dark floor void
+  const voidGeo = new THREE.PlaneGeometry(2.4, 3)
+  voidGeo.rotateX(-Math.PI / 2)
+  const voidFloor = new THREE.Mesh(voidGeo, new THREE.MeshBasicMaterial({ color: 0x000011 }))
+  voidFloor.position.y = -0.05
+  group.add(voidFloor)
+  // Blue-white glow plane at bottom of chasm
+  const glowGeo = new THREE.PlaneGeometry(2.2, 2.8)
+  glowGeo.rotateX(-Math.PI / 2)
+  const glowMat = new THREE.MeshStandardMaterial({ color: 0x001133, emissive: 0x0044ff, emissiveIntensity: 3, transparent: true, opacity: 0.6 })
+  const glowFloor = new THREE.Mesh(glowGeo, glowMat)
+  glowFloor.position.y = -0.04
+  glowFloor.name = 'gapEdge'
+  group.add(glowFloor)
+  // Fog volume (semi-transparent box rising from gap)
+  const fogMat = new THREE.MeshStandardMaterial({ color: 0x001133, emissive: 0x0022aa, emissiveIntensity: 0.5, transparent: true, opacity: 0.18 })
+  const fog = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.6, 2.8), fogMat)
+  fog.position.y = 0.3
+  group.add(fog)
+  // Electric arc edges
+  const arcMat = new THREE.MeshStandardMaterial({ color: 0x002255, emissive: 0x0088ff, emissiveIntensity: 4 })
+  ;[-1.5, 1.5].forEach(z => {
+    const arc = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.05, 0.05), arcMat)
+    arc.position.set(0, 0, z)
+    group.add(arc)
+  })
+  ;[-1.2, 1.2].forEach(x => {
+    const arc = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 3), arcMat)
+    arc.position.set(x, 0, 0)
+    group.add(arc)
+  })
+  group.userData.type = 'GAP'
+  group.userData.avoidWith = 'JUMP'
+  group.userData.time = 0
+  group.userData.hazardAABB = { minX: -1.2, maxX: 1.2, minY: -10, maxY: 0.05, minZ: -1.5, maxZ: 1.5 }
+  return group
+}
 function laserGateB() { return laserGateA() }
 function patrolBotB() { return patrolBotA() }
 function patrolBotC() { return patrolBotA() }

@@ -9,28 +9,56 @@ function emissiveMat(color, emissive, intensity = 1.5) {
 // ─── HOLOGRAM_SIGN ────────────────────────────────────────────────────────────
 function hologramSignA() {
   const group = new THREE.Group()
-  const panel = new THREE.Mesh(
-    new THREE.BoxGeometry(2.4, 2.15, 0.1),
-    emissiveMat(0x003366, 0x0066ff)
-  )
+  // Dual base mounting posts
+  const postMat = emissiveMat(0x001133, 0x0044aa, 1.2)
+  ;[-0.85, 0.85].forEach(x => {
+    const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.35, 0.08), postMat)
+    shaft.position.set(x, 0.175, 0)
+    group.add(shaft)
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.06, 0.2), postMat)
+    foot.position.set(x, 0.0, 0)
+    group.add(foot)
+  })
+  // Panel
+  const panel = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.95, 0.08), emissiveMat(0x003366, 0x0066ff))
   panel.position.y = 1.075
   panel.name = 'signPanel'
   group.add(panel)
-  const frameMat = emissiveMat(0x002244, 0x00aaff, 2.5)
-  ;[2.15, 0].forEach(y => {
-    const e = new THREE.Mesh(new THREE.BoxGeometry(2.45, 0.05, 0.05), frameMat)
-    e.position.set(0, y, 0.06)
+  // Double frame — outer
+  const outerMat = emissiveMat(0x002244, 0x00aaff, 2.5)
+  ;[2.08, 0.08].forEach(y => {
+    const e = new THREE.Mesh(new THREE.BoxGeometry(2.48, 0.06, 0.06), outerMat)
+    e.position.set(0, y, 0.1)
     group.add(e)
   })
-  ;[-1.2, 1.2].forEach(x => {
-    const e = new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.2, 0.05), frameMat)
-    e.position.set(x, 1.075, 0.06)
+  ;[-1.22, 1.22].forEach(x => {
+    const e = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.05, 0.06), outerMat)
+    e.position.set(x, 1.08, 0.1)
     group.add(e)
   })
-  const textMat = emissiveMat(0x002233, 0x00ccff, 1.2)
-  ;[1.7, 1.4, 1.1].forEach(y => {
-    const line = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.06, 0.05), textMat)
-    line.position.set(0, y, 0.08)
+  // Inner accent strip
+  const accentMat = emissiveMat(0x001144, 0x0088ff, 3.5)
+  const strip = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.04, 0.04), accentMat)
+  strip.position.set(0, 0.28, 0.1)
+  group.add(strip)
+  // Corner joints
+  const jointMat = emissiveMat(0x003366, 0x0099ff, 2)
+  ;[[-1.2, 2.06], [1.2, 2.06], [-1.2, 0.1], [1.2, 0.1]].forEach(([x, y]) => {
+    const j = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.13, 0.13), jointMat)
+    j.position.set(x, y, 0.1)
+    group.add(j)
+  })
+  // UI elements: bar graph
+  const uiMat = emissiveMat(0x002233, 0x00ccff, 1.2)
+  ;[0.5, 0.7, 0.4, 0.6, 0.8].forEach((h, i) => {
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(0.18, h, 0.04), uiMat)
+    bar.position.set(-0.44 + i * 0.22, 0.55 + h / 2, 0.1)
+    group.add(bar)
+  })
+  // Status text lines (upper area)
+  ;[1.7, 1.55, 1.42].forEach(y => {
+    const line = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.055, 0.04), uiMat)
+    line.position.set(0, y, 0.1)
     group.add(line)
   })
   group.userData.type = 'HOLOGRAM_SIGN'
@@ -44,25 +72,50 @@ function hologramSignA() {
 // ─── NEON_PIPE ────────────────────────────────────────────────────────────────
 function neonPipeA() {
   const group = new THREE.Group()
-  const geo = new THREE.CylinderGeometry(0.15, 0.15, 2.6, 8)
-  geo.rotateZ(Math.PI / 2)
-  const pipe = new THREE.Mesh(geo, emissiveMat(0x004444, 0x00ffff))
+  const pipeGeo = new THREE.CylinderGeometry(0.14, 0.14, 2.5, 8)
+  pipeGeo.rotateZ(Math.PI / 2)
+  const pipe = new THREE.Mesh(pipeGeo, emissiveMat(0x004444, 0x00ffff))
   pipe.position.y = 1.2
   pipe.name = 'pipe'
   group.add(pipe)
-  const capMat = emissiveMat(0x006666, 0x00ffff, 3)
-  ;[-1.3, 1.3].forEach(x => {
-    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.05, 12), capMat)
-    cap.rotation.z = Math.PI / 2
-    cap.position.set(x, 1.2, 0)
-    group.add(cap)
+  // Hex-bolt flanges at ends
+  const flangeMat = emissiveMat(0x006666, 0x00ffff, 3)
+  ;[-1.25, 1.25].forEach(x => {
+    const flange = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.07, 6), flangeMat)
+    flange.rotation.z = Math.PI / 2
+    flange.position.set(x, 1.2, 0)
+    group.add(flange)
+    // Bolt dots on flange face
+    ;[0, 1, 2, 3, 4, 5].forEach(i => {
+      const a = (i / 6) * Math.PI * 2
+      const bolt = new THREE.Mesh(new THREE.SphereGeometry(0.025, 4, 4), emissiveMat(0x003333, 0x00cccc, 2))
+      bolt.position.set(x + (x > 0 ? 0.04 : -0.04), 1.2 + Math.sin(a) * 0.14, Math.cos(a) * 0.14)
+      group.add(bolt)
+    })
   })
+  // Support brackets with warning tape
   const bracketMat = emissiveMat(0x003333, 0x006666, 1)
-  ;[-0.8, 0.8].forEach(x => {
-    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.2, 0.06), bracketMat)
+  ;[-0.75, 0.75].forEach(x => {
+    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.07, 1.2, 0.07), bracketMat)
     bracket.position.set(x, 0.6, 0)
     group.add(bracket)
+    // Warning tape stripes on bracket
+    ;[0.2, 0.5, 0.8].forEach(t => {
+      const tape = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.06, 0.09), emissiveMat(0x333300, 0xffcc00, 1.5))
+      tape.position.set(x, t * 1.2, 0)
+      group.add(tape)
+    })
   })
+  // Central junction box
+  const junctionMat = emissiveMat(0x003333, 0x009999, 1.5)
+  const junction = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.22, 0.22), junctionMat)
+  junction.position.set(0, 1.2, 0)
+  group.add(junction)
+  // Pressure gauge on top of junction
+  const gaugeMat = emissiveMat(0x333300, 0xffcc00, 2)
+  const gauge = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.06, 10), gaugeMat)
+  gauge.position.set(0, 1.32, 0)
+  group.add(gauge)
   group.userData.type = 'NEON_PIPE'
   group.userData.avoidWith = 'SLIDE'
   group.userData.time = 0
@@ -73,25 +126,60 @@ function neonPipeA() {
 // ─── GAP ──────────────────────────────────────────────────────────────────────
 function gapA() {
   const group = new THREE.Group()
-  const geo = new THREE.PlaneGeometry(2.4, 3)
-  geo.rotateX(-Math.PI / 2)
-  const floor = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x000000 }))
-  floor.position.y = -0.05
-  group.add(floor)
+  // Dark void
+  const voidGeo = new THREE.PlaneGeometry(2.4, 3)
+  voidGeo.rotateX(-Math.PI / 2)
+  const voidFloor = new THREE.Mesh(voidGeo, new THREE.MeshBasicMaterial({ color: 0x000000 }))
+  voidFloor.position.y = -0.05
+  group.add(voidFloor)
+  // Grid pattern on void floor
+  const gridMat = new THREE.MeshStandardMaterial({ color: 0x110000, emissive: 0x330000, emissiveIntensity: 1 })
+  for (let xi = -1; xi <= 1; xi++) {
+    const hLine = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.01, 0.03), gridMat)
+    hLine.position.set(0, -0.04, xi * 0.6)
+    group.add(hLine)
+  }
+  for (let zi = -2; zi <= 2; zi++) {
+    const vLine = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.01, 3), gridMat)
+    vLine.position.set(zi * 0.55, -0.04, 0)
+    group.add(vLine)
+  }
+  // Warning edges
   const edgeMat = new THREE.MeshStandardMaterial({ color: 0x330000, emissive: 0xff3300, emissiveIntensity: 4 })
-  const edgeH = new THREE.BoxGeometry(2.4, 0.06, 0.06)
-  const edgeV = new THREE.BoxGeometry(0.06, 0.06, 3)
   ;[-1.5, 1.5].forEach((z, i) => {
-    const e = new THREE.Mesh(edgeH, edgeMat)
+    const e = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.06, 0.06), edgeMat)
     e.position.set(0, 0, z)
     if (i === 0) e.name = 'gapEdge'
     group.add(e)
   })
   ;[-1.2, 1.2].forEach(x => {
-    const e = new THREE.Mesh(edgeV, edgeMat)
+    const e = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 3), edgeMat)
     e.position.set(x, 0, 0)
     group.add(e)
   })
+  // Broken concrete chunks on edges (6 pieces)
+  const concreteMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 })
+  ;[-1.1, -0.3, 0.3, 1.1].forEach(x => {
+    ;[-1.3, 1.3].forEach(z => {
+      if (Math.random() > 0.5) {
+        const chunk = new THREE.Mesh(
+          new THREE.BoxGeometry(0.15 + Math.random() * 0.1, 0.06 + Math.random() * 0.08, 0.15 + Math.random() * 0.1),
+          concreteMat
+        )
+        chunk.position.set(x, 0.03, z)
+        chunk.rotation.y = Math.random() * Math.PI
+        group.add(chunk)
+      }
+    })
+  })
+  // Depth indicator markers (vertical lines at each side)
+  const depthMat = new THREE.MeshStandardMaterial({ color: 0x330000, emissive: 0xff2200, emissiveIntensity: 2 })
+  ;[-1.2, 1.2].forEach(x => {
+    const marker = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.4, 0.03), depthMat)
+    marker.position.set(x, -0.2, 0)
+    group.add(marker)
+  })
+  // Cross markers
   const crossMat = new THREE.MeshStandardMaterial({ color: 0x220000, emissive: 0xff0000, emissiveIntensity: 2 })
   const diagGeo = new THREE.BoxGeometry(3.6, 0.04, 0.04)
   const cross1 = new THREE.Mesh(diagGeo, crossMat); cross1.position.y = 0.02; cross1.rotation.y = Math.PI / 4
@@ -107,18 +195,39 @@ function gapA() {
 // ─── LASER_GATE ───────────────────────────────────────────────────────────────
 function laserGateA() {
   const group = new THREE.Group()
+  const postMat = emissiveMat(0x440000, 0xff0000, 2)
   ;[-1.1, 1.1].forEach(x => {
-    const base = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.3, 0.14), emissiveMat(0x440000, 0xff0000, 2))
+    const base = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.3, 0.16), postMat)
     base.position.set(x, 0.15, 0)
-    const mid = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.8, 0.08), emissiveMat(0x440000, 0xff0000, 2))
-    mid.position.set(x, 1.05, 0)
-    const top = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.3, 0.14), emissiveMat(0x440000, 0xff0000, 2))
+    const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.09, 1.8, 0.09), postMat)
+    shaft.position.set(x, 1.05, 0)
+    const top = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.3, 0.16), postMat)
     top.position.set(x, 1.95, 0)
-    group.add(base, mid, top)
+    group.add(base, shaft, top)
+    // Heat sink fins (3 per post)
+    const finMat = emissiveMat(0x330000, 0xcc0000, 1.5)
+    ;[0.6, 1.0, 1.4].forEach(y => {
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.04, 0.18), finMat)
+      fin.position.set(x, y, 0)
+      group.add(fin)
+    })
+    // Emitter sphere at top
+    const emitter = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), emissiveMat(0x440000, 0xff2200, 4))
+    emitter.position.set(x, 2.14, 0)
+    group.add(emitter)
   })
-  const crossbar = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.08, 0.08), emissiveMat(0x440000, 0xff0000, 2))
+  // Crossbar with chevrons
+  const crossbar = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.09, 0.09), emissiveMat(0x440000, 0xff0000, 2))
   crossbar.position.y = 2.1
   group.add(crossbar)
+  // Chevron warning markers on crossbar
+  const chevMat = emissiveMat(0x333300, 0xffcc00, 2)
+  ;[-0.5, 0, 0.5].forEach(x => {
+    const chev = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.07, 0.07), chevMat)
+    chev.position.set(x, 2.1, 0.06)
+    group.add(chev)
+  })
+  // Beams
   const beam = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.06, 0.06), emissiveMat(0x440000, 0xff0000, 3))
   beam.position.y = 1.2
   beam.name = 'beam'
@@ -138,21 +247,61 @@ function laserGateA() {
 // ─── PATROL_BOT ───────────────────────────────────────────────────────────────
 function patrolBotA() {
   const group = new THREE.Group()
-  const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.4), emissiveMat(0x222200, 0xffcc00, 1.5))
-  body.position.y = 0.5
+  const bodyMat = emissiveMat(0x222200, 0xffcc00, 1.5)
+  // Feet
+  ;[-0.13, 0.13].forEach(x => {
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.06, 0.22), emissiveMat(0x111100, 0xaa8800, 1))
+    foot.position.set(x, 0.03, 0.03)
+    group.add(foot)
+    // Leg
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.28, 0.14), emissiveMat(0x1a1a00, 0xcc9900, 1.2))
+    leg.position.set(x, 0.2, 0)
+    group.add(leg)
+  })
+  // Body
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.55, 0.38), bodyMat)
+  body.position.y = 0.59
   body.name = 'botBody'
-  const head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.25, 0.3), emissiveMat(0x333300, 0xffcc00, 2))
-  head.position.y = 1.0
+  group.add(body)
+  // Chest sensor panel
+  const sensorMat = emissiveMat(0x221100, 0xff6600, 2)
+  const sensor = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, 0.04), sensorMat)
+  sensor.position.set(0, 0.6, 0.2)
+  group.add(sensor)
+  // Sensor grid lines
+  const gridMat = emissiveMat(0x332200, 0xffaa00, 3)
+  ;[-0.05, 0.05].forEach(x => {
+    const gl = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.14, 0.03), gridMat)
+    gl.position.set(x, 0.6, 0.22)
+    group.add(gl)
+  })
+  // Arm stubs
+  ;[-0.32, 0.32].forEach(x => {
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.28, 0.12), emissiveMat(0x1a1a00, 0xcc9900, 1))
+    arm.position.set(x, 0.62, 0)
+    group.add(arm)
+  })
+  // Head with visor
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.26, 0.3), bodyMat)
+  head.position.y = 1.02
   head.name = 'botHead'
+  group.add(head)
+  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.07, 0.04), emissiveMat(0x440000, 0xff6600, 3))
+  visor.position.set(0, 1.02, 0.17)
+  group.add(visor)
+  // Eyes (small, below visor)
   const eyeMat = new THREE.MeshStandardMaterial({ color: 0x440000, emissive: 0xff2200, emissiveIntensity: 3 })
-  const eyeGeo = new THREE.SphereGeometry(0.05, 6, 6)
-  const lEye = new THREE.Mesh(eyeGeo, eyeMat); lEye.position.set(-0.07, 1.02, 0.16)
-  const rEye = new THREE.Mesh(eyeGeo, eyeMat); rEye.position.set(0.07, 1.02, 0.16)
-  const antennaShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.3, 6), emissiveMat(0x222200, 0xffcc00, 2))
-  antennaShaft.position.set(0, 1.4, 0)
-  const antennaTip = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), emissiveMat(0x333300, 0xffff00, 3))
-  antennaTip.position.set(0, 1.58, 0)
-  group.add(body, head, lEye, rEye, antennaShaft, antennaTip)
+  ;[-0.07, 0.07].forEach(x => {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), eyeMat)
+    eye.position.set(x, 1.0, 0.16)
+    group.add(eye)
+  })
+  // Antenna
+  const antShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.32, 6), bodyMat)
+  antShaft.position.set(0, 1.41, 0)
+  const antTip = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 6), emissiveMat(0x333300, 0xffff00, 3))
+  antTip.position.set(0, 1.6, 0)
+  group.add(antShaft, antTip)
   group.userData.type = 'PATROL_BOT'
   group.userData.avoidWith = 'LANE'
   group.userData.patrolDir = 1

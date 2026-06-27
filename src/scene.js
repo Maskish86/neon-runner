@@ -43,35 +43,91 @@ function makeGroundMaterial() {
 }
 
 function makeBuildings(scene) {
-  const count = 60
   const geo = new THREE.BoxGeometry(1, 1, 1)
-  const mat = new THREE.MeshStandardMaterial({
-    color: 0x110022,
-    emissive: 0x220033,
-    emissiveIntensity: 0.5,
-  })
-  const mesh = new THREE.InstancedMesh(geo, mat, count)
-  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
+  const spread = 30
+
+  function makeSet(count, color, emissive, emissiveIntensity) {
+    const mat = new THREE.MeshStandardMaterial({ color, emissive, emissiveIntensity })
+    const mesh = new THREE.InstancedMesh(geo, mat, count)
+    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
+    return mesh
+  }
+
+  const dark     = makeSet(36, 0x110022, 0x220033, 0.5)
+  const bright   = makeSet(12, 0x1a0033, 0x330055, 0.8)
+  const windowed = makeSet(12, 0x110022, 0x220033, 0.5)
+
+  // Window strips: thin emissive panels on building fronts
+  const winColors = [0x00ffff, 0xff00ff, 0xffaa00]
+  const winGeo = new THREE.BoxGeometry(1, 1, 0.05)
+  const winMeshes = winColors.map(c =>
+    new THREE.InstancedMesh(
+      winGeo,
+      new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 2 }),
+      7  // 7 strips per color = 21 total
+    )
+  )
+  winMeshes.forEach(m => { m.instanceMatrix.setUsage(THREE.DynamicDrawUsage) })
 
   const dummy = new THREE.Object3D()
-  const spread = 30
-  for (let i = 0; i < count; i++) {
-    const side = Math.random() > 0.5 ? 1 : -1
-    dummy.position.set(
-      side * (8 + Math.random() * spread),
-      Math.random() * 10 + 2,
-      -Math.random() * 200
-    )
-    dummy.scale.set(
-      2 + Math.random() * 4,
-      4 + Math.random() * 20,
-      2 + Math.random() * 4,
-    )
-    dummy.updateMatrix()
-    mesh.setMatrixAt(i, dummy.matrix)
+  const allSets = [
+    { mesh: dark,     count: 36 },
+    { mesh: bright,   count: 12 },
+    { mesh: windowed, count: 12 },
+  ]
+
+  let globalIdx = 0
+  allSets.forEach(({ mesh, count }) => {
+    for (let i = 0; i < count; i++) {
+      const side = globalIdx % 2 === 0 ? 1 : -1
+      const w = 2 + Math.random() * 4
+      const h = 4 + Math.random() * 20
+      const d = 2 + Math.random() * 4
+      dummy.position.set(
+        side * (8 + Math.random() * spread),
+        h / 2 + 0.5,
+        -Math.random() * 200
+      )
+      dummy.scale.set(w, h, d)
+      dummy.updateMatrix()
+      mesh.setMatrixAt(i, dummy.matrix)
+      globalIdx++
+    }
+    mesh.instanceMatrix.needsUpdate = true
+    scene.add(mesh)
+  })
+
+  // Place window strips on "windowed" buildings
+  const windowedPositions = []
+  for (let i = 0; i < 12; i++) {
+    windowed.getMatrixAt(i, dummy.matrix)
+    dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale)
+    windowedPositions.push({
+      x: dummy.position.x,
+      y: dummy.position.y,
+      z: dummy.position.z,
+      h: dummy.scale.y,
+      w: dummy.scale.x,
+    })
   }
-  mesh.instanceMatrix.needsUpdate = true
-  return mesh
+
+  winMeshes.forEach((wm, ci) => {
+    for (let i = 0; i < 7; i++) {
+      const bld = windowedPositions[(ci * 7 + i) % windowedPositions.length]
+      dummy.position.set(
+        bld.x + (bld.x > 0 ? -bld.w * 0.5 - 0.03 : bld.w * 0.5 + 0.03),
+        bld.y + (Math.random() - 0.5) * bld.h * 0.6,
+        bld.z
+      )
+      dummy.scale.set(0.3, bld.h * 0.7, 1)
+      dummy.updateMatrix()
+      wm.setMatrixAt(i, dummy.matrix)
+    }
+    wm.instanceMatrix.needsUpdate = true
+    scene.add(wm)
+  })
+
+  return { dark, bright, windowed, windows: winMeshes }
 }
 
 function makeSkyline() {
@@ -139,8 +195,8 @@ export function initScene(scene) {
   scene.add(groundGroup)
 
   // Buildings
-  const buildingMesh = makeBuildings(scene)
-  scene.add(buildingMesh)
+  const { dark, bright, windowed, windows } = makeBuildings(scene)
+  const buildingMeshes = [dark, bright, windowed, ...windows]
 
   // Skyline
   scene.add(makeSkyline())
@@ -160,16 +216,18 @@ export function initScene(scene) {
     })
     // Parallax buildings (30% speed)
     const dummy = new THREE.Object3D()
-    for (let i = 0; i < buildingMesh.count; i++) {
-      buildingMesh.getMatrixAt(i, dummy.matrix)
-      dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale)
-      dummy.position.z += speed * delta * 0.3
-      if (dummy.position.z > 20) dummy.position.z -= 220
-      dummy.updateMatrix()
-      buildingMesh.setMatrixAt(i, dummy.matrix)
-    }
-    buildingMesh.instanceMatrix.needsUpdate = true
+    buildingMeshes.forEach(mesh => {
+      for (let i = 0; i < mesh.count; i++) {
+        mesh.getMatrixAt(i, dummy.matrix)
+        dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale)
+        dummy.position.z += speed * delta * 0.3
+        if (dummy.position.z > 20) dummy.position.z -= 220
+        dummy.updateMatrix()
+        mesh.setMatrixAt(i, dummy.matrix)
+      }
+      mesh.instanceMatrix.needsUpdate = true
+    })
   }
 
-  return { groundGroup, buildingMesh, updateScene }
+  return { groundGroup, buildingMeshes, updateScene }
 }

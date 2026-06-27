@@ -6,7 +6,7 @@ export const ACCEL_FACTOR = 0.0008        // speed += distance * ACCEL_FACTOR pe
 export const LANE_SWITCH_DURATION = 0.15  // seconds
 export const JUMP_VELOCITY = 10
 export const GRAVITY = -22
-export const SLIDE_DURATION = 0.6
+export const SLIDE_DURATION = 0.9
 export const INVINCIBLE_DURATION = 0.8
 export const BEAM_LOW_Y = 0.5
 export const BEAM_HIGH_Y = 1.5

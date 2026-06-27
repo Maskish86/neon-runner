@@ -170,7 +170,8 @@ export function initCollectibles(scene) {
 
     // Power-up duration countdown (SHIELD is one-time, not time-based)
     if (gameState.powerUp && gameState.powerUp.type !== 'SHIELD') {
-      gameState.powerUp.timeLeft -= delta
+      const pauseHover = gameState.powerUp.type === 'HOVER' && gameState.droneBeamActive
+      if (!pauseHover) gameState.powerUp.timeLeft -= delta
       if (gameState.powerUp.timeLeft <= 0) gameState.powerUp = null
     }
 

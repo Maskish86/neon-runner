@@ -10,7 +10,7 @@ const POWERUP_SPAWN_INTERVAL = 8
 const POWERUP_COLORS = {
   SHIELD:    { color: 0x0044ff, emissive: 0x0088ff },
   MAGNET:    { color: 0xffaa00, emissive: 0xffdd00 },
-  OVERDRIVE: { color: 0xffffff, emissive: 0xffffff },
+  OVERDRIVE: { color: 0xff6600, emissive: 0xff4400 },
   HOVER:     { color: 0x00ff44, emissive: 0x00ff88 },
 }
 
@@ -55,7 +55,7 @@ function makePowerUpMesh(type) {
   } else if (type === 'OVERDRIVE') {
     group.add(new THREE.Mesh(
       new THREE.IcosahedronGeometry(0.4),
-      stdMat(c.color, c.emissive, 3)
+      stdMat(c.color, c.emissive, 1.5)
     ))
   } else if (type === 'HOVER') {
     const m = new THREE.Mesh(new THREE.OctahedronGeometry(0.4), stdMat(c.color, c.emissive))

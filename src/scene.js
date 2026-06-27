@@ -274,10 +274,8 @@ export function initScene(scene) {
     // Scroll arches
     const archSpacing = 20
     const archTotal = archSpacing * 3
-    archGroup.children.forEach((part, idx) => {
+    archGroup.children.forEach(part => {
       part.position.z += speed * delta
-      // Each arch is 3 parts (left post, right post, bar) — group by arch index
-      const archIdx = Math.floor(idx / 3)
       if (part.position.z > archSpacing) {
         part.position.z -= archTotal
       }

@@ -165,7 +165,10 @@ function makeSkyline() {
 
 function makeRails() {
   const group = new THREE.Group()
+  // Offset geometry so box extends from position.z toward -z (forward),
+  // never past position.z toward +z (camera). Prevents bloom flare at camera.
   const railGeo = new THREE.BoxGeometry(0.06, 0.12, TILE_LENGTH)
+  railGeo.translate(0, 0, -TILE_LENGTH / 2)
   const leftMat = new THREE.MeshStandardMaterial({
     color: 0x004444, emissive: 0x00ffff, emissiveIntensity: 1.0,
   })
@@ -243,10 +246,10 @@ export function initScene(scene) {
         tile.position.z -= TILE_LENGTH * TILE_COUNT
       }
     })
-    // Scroll rails (same cadence as ground tiles)
+    // Scroll rails — recycle at z>0 so box (offset -TILE_LENGTH/2) never reaches camera
     railGroup.children.forEach(rail => {
       rail.position.z += speed * delta
-      if (rail.position.z > TILE_LENGTH) {
+      if (rail.position.z > 0) {
         rail.position.z -= TILE_LENGTH * TILE_COUNT
       }
     })

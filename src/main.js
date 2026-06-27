@@ -155,7 +155,7 @@ renderer.setAnimationLoop(() => {
     gameState.speed = Math.min(MAX_SPEED, BASE_SPEED + gameState.distance * ACCEL_FACTOR)
     gameState.score = Math.floor(gameState.distance) + gameState.shardBonus
 
-    updateScene(delta, gameState.speed)
+    updateScene(delta, gameState.speed, camera.position.z)
     const prevYPos = gameState.player.yPos
     playerApi.update(delta, gameState)
     if (prevYPos > 0.05 && gameState.player.yPos <= 0 && gameState.player.action !== 'SLIDING') {
@@ -244,7 +244,7 @@ renderer.setAnimationLoop(() => {
 
     updateHud(gameState)
   } else if (gameState.status === 'TITLE') {
-    updateScene(delta, 4)
+    updateScene(delta, 4, camera.position.z)
   }
 
   composer.render()

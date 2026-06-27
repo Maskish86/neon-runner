@@ -96,6 +96,15 @@ export function initScene(scene) {
   // Lights
   const dirLight = new THREE.DirectionalLight(0x9944ff, 2)
   dirLight.position.set(5, 10, 5)
+  dirLight.castShadow = true
+  dirLight.shadow.mapSize.width = 1024
+  dirLight.shadow.mapSize.height = 1024
+  dirLight.shadow.camera.near = 0.5
+  dirLight.shadow.camera.far = 50
+  dirLight.shadow.camera.left = -10
+  dirLight.shadow.camera.right = 10
+  dirLight.shadow.camera.top = 10
+  dirLight.shadow.camera.bottom = -10
   scene.add(dirLight)
   const pointLeft = new THREE.PointLight(0x00ffff, 3, 30)
   pointLeft.position.set(-8, 3, 0)
@@ -125,7 +134,9 @@ export function initScene(scene) {
 
   let totalDist = 0
 
-  function updateScene(delta, speed) {
+  function updateScene(delta, speed, cameraZ = 0) {
+    pointLeft.position.z = cameraZ
+    pointRight.position.z = cameraZ
     totalDist += speed * delta
     // Scroll ground tiles
     groundGroup.children.forEach(tile => {

@@ -186,30 +186,6 @@ function makeRails() {
   return group
 }
 
-function makeArches() {
-  const group = new THREE.Group()
-  const mat = new THREE.MeshStandardMaterial({
-    color: 0x220044, emissive: 0x9900ff, emissiveIntensity: 2,
-  })
-  const postGeo = new THREE.BoxGeometry(0.08, 3, 0.08)
-  const barGeo  = new THREE.BoxGeometry(11, 0.06, 0.06)
-  const archSpacing = 20
-
-  for (let i = 0; i < 3; i++) {
-    const zPos = -i * archSpacing
-    const left  = new THREE.Mesh(postGeo, mat)
-    left.castShadow = true
-    left.position.set(-5.5, 1.5, zPos)
-    const right = new THREE.Mesh(postGeo, mat)
-    right.castShadow = true
-    right.position.set(5.5, 1.5, zPos)
-    const bar   = new THREE.Mesh(barGeo, mat)
-    bar.castShadow = true
-    bar.position.set(0, 3, zPos)
-    group.add(left, right, bar)
-  }
-  return group
-}
 
 export function initScene(scene) {
   // Lights
@@ -248,9 +224,6 @@ export function initScene(scene) {
   const railGroup = makeRails()
   scene.add(railGroup)
 
-  const archGroup = makeArches()
-  scene.add(archGroup)
-
   // Buildings
   const { dark, bright, windowed, windows } = makeBuildings(scene)
   const buildingMeshes = [dark, bright, windowed, ...windows]
@@ -277,16 +250,6 @@ export function initScene(scene) {
       rail.position.z += speed * delta
       if (rail.position.z > TILE_LENGTH) {
         rail.position.z -= TILE_LENGTH * TILE_COUNT
-      }
-    })
-
-    // Scroll arches
-    const archSpacing = 20
-    const archTotal = archSpacing * 3
-    archGroup.children.forEach(part => {
-      part.position.z += speed * delta
-      if (part.position.z > archSpacing) {
-        part.position.z -= archTotal
       }
     })
 

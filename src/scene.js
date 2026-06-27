@@ -235,8 +235,8 @@ export function initScene(scene) {
   const dummy = new THREE.Object3D()
 
   function updateScene(delta, speed, cameraZ = 0) {
-    pointLeft.position.z = cameraZ
-    pointRight.position.z = cameraZ
+    pointLeft.position.z = cameraZ - 10
+    pointRight.position.z = cameraZ - 10
     totalDist += speed * delta
     // Scroll ground tiles
     groundGroup.children.forEach(tile => {

@@ -41,6 +41,29 @@ describe('calcSpinnerAABB', () => {
   })
 })
 
+describe('2-lane obstacles', () => {
+  it('WIDE_WALL hazardAABB covers 2 lane centers', () => {
+    for (const factory of OBSTACLE_VARIANTS.WIDE_WALL) {
+      const g = factory()
+      const hz = g.userData.hazardAABB
+      // Must hit player at x=-2.5 (offset -1.25 + hz.minX must be < -2.5 + 0.28)
+      // Obstacle at x=-1.25: player at x=-2.5 → pos.x + hz.minX < -2.5 + 0.28 = -2.22
+      expect(hz.minX).toBeLessThan(-1.2)  // -1.25 + minX < -2.22 → minX < -0.97
+      // Must hit player at x=0 → pos.x + hz.maxX > 0 - 0.28 = -0.28
+      expect(hz.maxX).toBeGreaterThan(0.97)
+    }
+  })
+
+  it('WIDE_HURDLE hazardAABB is at slide height', () => {
+    for (const factory of OBSTACLE_VARIANTS.WIDE_HURDLE) {
+      const g = factory()
+      const hz = g.userData.hazardAABB
+      expect(hz.minY).toBeGreaterThanOrEqual(0.9)
+      expect(hz.maxY).toBeLessThanOrEqual(1.5)
+    }
+  })
+})
+
 describe('tickChargerBot', () => {
   const baseState = { chargeState: 'APPROACH', windupTimer: 0, chargeTimer: 0, time: 0 }
 

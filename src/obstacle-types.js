@@ -509,32 +509,154 @@ function patrolBotC() {
   return group
 }
 function wideWallA() {
-  const g = hologramSignA()
-  g.userData.type = 'WIDE_WALL'
-  g.userData.avoidWith = 'JUMP'
-  g.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0, maxY: 1.9, minZ: -0.15, maxZ: 0.15 }
-  return g
+  const group = new THREE.Group()
+  const doorMat = emissiveMat(0x111111, 0x333333, 0.4)
+  // Main door panel
+  const door = new THREE.Mesh(new THREE.BoxGeometry(2.9, 2.0, 0.14), doorMat)
+  door.position.y = 1.0
+  group.add(door)
+  // Warning stripes (diagonal yellow-black pattern via horizontal alternating bands)
+  const warnYellow = emissiveMat(0x333300, 0xffcc00, 1.5)
+  const warnBlack = emissiveMat(0x080808, 0x111100, 0.3)
+  for (let i = 0; i < 8; i++) {
+    const mat = i % 2 === 0 ? warnYellow : warnBlack
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.22, 0.05), mat)
+    stripe.position.set(0, 0.15 + i * 0.23, 0.1)
+    group.add(stripe)
+  }
+  // Central warning light cluster
+  const warnLightMat = emissiveMat(0x440000, 0xff2200, 4)
+  ;[-0.3, 0, 0.3].forEach(x => {
+    const light = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), warnLightMat)
+    light.position.set(x, 1.0, 0.12)
+    group.add(light)
+  })
+  // Frame
+  const frameMat = emissiveMat(0x222222, 0x666666, 1)
+  ;[-1.46, 1.46].forEach(x => {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.1, 0.18), frameMat)
+    post.position.set(x, 1.05, 0)
+    group.add(post)
+  })
+  ;[0.0, 2.05].forEach(y => {
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.1, 0.18), frameMat)
+    bar.position.set(0, y, 0)
+    group.add(bar)
+  })
+  // Searchlight on top
+  const searchMat = emissiveMat(0x333300, 0xffee88, 3)
+  const searchBody = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.14, 0.2, 8), searchMat)
+  searchBody.position.set(0, 2.2, 0)
+  group.add(searchBody)
+  group.userData.type = 'WIDE_WALL'
+  group.userData.avoidWith = 'JUMP'
+  group.userData.time = 0
+  group.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0, maxY: 1.9, minZ: -0.15, maxZ: 0.15 }
+  return group
 }
 function wideWallB() {
-  const g = hologramSignA()
-  g.userData.type = 'WIDE_WALL'
-  g.userData.avoidWith = 'JUMP'
-  g.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0, maxY: 1.9, minZ: -0.15, maxZ: 0.15 }
-  return g
+  const group = new THREE.Group()
+  // Generator posts at each end
+  const postMat = emissiveMat(0x001133, 0x0044ff, 2)
+  ;[-1.5, 1.5].forEach(x => {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.1, 0.18), postMat)
+    post.position.set(x, 1.05, 0)
+    group.add(post)
+    // Generator coil rings
+    ;[0.5, 1.0, 1.5].forEach(y => {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.03, 6, 10), emissiveMat(0x002266, 0x0088ff, 3))
+      ring.position.set(x, y, 0)
+      group.add(ring)
+    })
+  })
+  // Force field — semi-transparent plane
+  const fieldMat = new THREE.MeshStandardMaterial({
+    color: 0x001133, emissive: 0x0055ff, emissiveIntensity: 1.5,
+    transparent: true, opacity: 0.35, side: THREE.DoubleSide,
+  })
+  const field = new THREE.Mesh(new THREE.PlaneGeometry(2.9, 2.0), fieldMat)
+  field.position.y = 1.0
+  group.add(field)
+  // Electric current lines (horizontal strips)
+  const currentMat = emissiveMat(0x001155, 0x44aaff, 3)
+  ;[0.4, 0.9, 1.4, 1.8].forEach(y => {
+    const line = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.03, 0.03), currentMat)
+    line.position.set(0, y, 0.02)
+    group.add(line)
+  })
+  group.userData.type = 'WIDE_WALL'
+  group.userData.avoidWith = 'JUMP'
+  group.userData.time = 0
+  group.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0, maxY: 1.9, minZ: -0.15, maxZ: 0.15 }
+  return group
 }
 function wideHurdleA() {
-  const g = neonPipeA()
-  g.userData.type = 'WIDE_HURDLE'
-  g.userData.avoidWith = 'SLIDE'
-  g.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0.95, maxY: 1.45, minZ: -0.15, maxZ: 0.15 }
-  return g
+  const group = new THREE.Group()
+  const postMat = emissiveMat(0x222222, 0x555555, 0.8)
+  // Support posts at each end
+  ;[-1.5, 1.5].forEach(x => {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.3, 0.12), postMat)
+    post.position.set(x, 0.65, 0)
+    group.add(post)
+    const base = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.06, 0.22), postMat)
+    base.position.set(x, 0.0, 0)
+    group.add(base)
+  })
+  // Horizontal scan beam arm
+  const armMat = emissiveMat(0x003311, 0x00ff66, 2)
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.07, 0.07), armMat)
+  arm.position.y = 1.2
+  arm.name = 'pipe'  // reuse 'pipe' name for emissive pulse update
+  group.add(arm)
+  // Emitter nodes at arm ends
+  const emitterMat = emissiveMat(0x002211, 0x00ff88, 3)
+  ;[-1.5, 1.5].forEach(x => {
+    const emitter = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.14, 0.14), emitterMat)
+    emitter.position.set(x, 1.2, 0)
+    group.add(emitter)
+  })
+  // Sweep indicator line (visual only — slightly above arm)
+  const sweepMat = new THREE.MeshStandardMaterial({ color: 0x001100, emissive: 0x00ff44, emissiveIntensity: 1, transparent: true, opacity: 0.4 })
+  const sweep = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.18, 0.04), sweepMat)
+  sweep.position.y = 1.22
+  group.add(sweep)
+  group.userData.type = 'WIDE_HURDLE'
+  group.userData.avoidWith = 'SLIDE'
+  group.userData.time = 0
+  group.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0.95, maxY: 1.45, minZ: -0.15, maxZ: 0.15 }
+  return group
 }
 function wideHurdleB() {
-  const g = neonPipeA()
-  g.userData.type = 'WIDE_HURDLE'
-  g.userData.avoidWith = 'SLIDE'
-  g.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0.95, maxY: 1.45, minZ: -0.15, maxZ: 0.15 }
-  return g
+  const group = new THREE.Group()
+  const houseMat = emissiveMat(0x111111, 0x444444, 0.5)
+  // Low-profile housing strip (flush to ground)
+  const housing = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.12, 0.3), houseMat)
+  housing.position.y = 0.06
+  group.add(housing)
+  // Vent grilles on housing top
+  const ventMat = emissiveMat(0x220000, 0x660000, 0.8)
+  for (let i = -5; i <= 5; i++) {
+    const vent = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.03, 0.25), ventMat)
+    vent.position.set(i * 0.26, 0.12, 0)
+    group.add(vent)
+  }
+  // Scan line at 1.1 height
+  const scanMat = emissiveMat(0x330000, 0xff2200, 3)
+  const scan = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.06, 0.06), scanMat)
+  scan.position.y = 1.1
+  scan.name = 'pipe'  // reuse for pulse update
+  group.add(scan)
+  // Side indicator lights
+  ;[-1.45, 1.45].forEach(x => {
+    const ind = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.06), emissiveMat(0x330000, 0xff0000, 4))
+    ind.position.set(x, 0.09, 0.16)
+    group.add(ind)
+  })
+  group.userData.type = 'WIDE_HURDLE'
+  group.userData.avoidWith = 'SLIDE'
+  group.userData.time = 0
+  group.userData.hazardAABB = { minX: -1.45, maxX: 1.45, minY: 0.95, maxY: 1.45, minZ: -0.15, maxZ: 0.15 }
+  return group
 }
 function spinnerBotA() {
   const g = patrolBotA()

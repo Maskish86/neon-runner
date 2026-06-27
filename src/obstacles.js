@@ -205,6 +205,19 @@ export function initObstacles(scene) {
         if (gapEdge) gapEdge.material.emissiveIntensity = 4 + 2 * Math.abs(Math.sin(obj.userData.time * 3))
       }
 
+      if (type === 'WIDE_WALL') {
+        obj.userData.time += delta
+        // pulsing warning lights
+        const wl = obj.getObjectByName('warnLight')
+        // (no named mesh — skip; individual emissive fluctuation handled per-material is not needed here)
+      }
+
+      if (type === 'WIDE_HURDLE') {
+        obj.userData.time += delta
+        const pipe = obj.getObjectByName('pipe')
+        if (pipe) pipe.material.emissiveIntensity = 2 + 1.5 * Math.abs(Math.sin(obj.userData.time * 5))
+      }
+
       if (type === 'SPINNER_BOT') {
         obj.userData.spinAngle += delta * obj.userData.spinSpeed
         const spinArm = obj.getObjectByName('spinArm')

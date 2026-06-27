@@ -204,11 +204,11 @@ export function initScene(scene) {
   dirLight.shadow.camera.top = 10
   dirLight.shadow.camera.bottom = -10
   scene.add(dirLight)
-  const pointLeft = new THREE.PointLight(0x00ffff, 3, 30)
-  pointLeft.position.set(-8, 6, -15)
+  const pointLeft = new THREE.PointLight(0x00ffff, 3, 20)
+  pointLeft.position.set(-8, 6, -25)
   scene.add(pointLeft)
-  const pointRight = new THREE.PointLight(0xff00ff, 3, 30)
-  pointRight.position.set(8, 6, -15)
+  const pointRight = new THREE.PointLight(0xff00ff, 3, 20)
+  pointRight.position.set(8, 6, -25)
   scene.add(pointRight)
 
   // Ground tiles
@@ -246,10 +246,10 @@ export function initScene(scene) {
         tile.position.z -= TILE_LENGTH * TILE_COUNT
       }
     })
-    // Scroll rails — recycle at z>0 so box (offset -TILE_LENGTH/2) never reaches camera
+    // Scroll rails
     railGroup.children.forEach(rail => {
       rail.position.z += speed * delta
-      if (rail.position.z > 0) {
+      if (rail.position.z > TILE_LENGTH) {
         rail.position.z -= TILE_LENGTH * TILE_COUNT
       }
     })

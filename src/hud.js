@@ -30,7 +30,7 @@ export function updateHud(gameState) {
   const puEl = document.getElementById('hud-powerup')
   if (gameState.powerUp) {
     const { type, timeLeft } = gameState.powerUp
-    const dur = { SHIELD:Infinity, MAGNET:8, OVERDRIVE:5, HOVER:6 }[type]
+    const dur = { SHIELD:Infinity, MAGNET:8, OVERDRIVE:10, HOVER:6 }[type]
     const pct = type === 'SHIELD' ? 100 : Math.max(0, (timeLeft / dur) * 100)
     const col = POWERUP_LABEL_COLORS[type]
     puEl.innerHTML = `

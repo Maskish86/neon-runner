@@ -18,7 +18,7 @@ export const SKIN_COLORS = {
 }
 
 export const POWERUP_TYPES = ['SHIELD', 'MAGNET', 'OVERDRIVE', 'HOVER']
-export const POWERUP_DURATIONS = { SHIELD: Infinity, MAGNET: 5, OVERDRIVE: 5, HOVER: 6 }
+export const POWERUP_DURATIONS = { SHIELD: Infinity, MAGNET: 5, OVERDRIVE: 10, HOVER: 6 }
 
 // GameState shape — owned by main.js, passed by reference to all modules
 // {

@@ -15,13 +15,26 @@ import { initDrone } from './drone.js'
 import { initParticles } from './particles.js'
 import { initAudio } from './audio.js'
 
+// --- Quality tier (HIGH = desktop/flagship phone, MED = mid-range phone) ---
+function detectQualityTier() {
+  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+    || ('ontouchstart' in window && window.innerWidth < 1024)
+  if (!isMobile) return 'HIGH'
+  const mem = navigator.deviceMemory ?? 4   // undefined on iOS → assume modern flagship
+  const cores = navigator.hardwareConcurrency ?? 4
+  const dpr = window.devicePixelRatio ?? 1
+  if (mem >= 4 || cores >= 8 || dpr >= 3) return 'HIGH'
+  return 'MED'
+}
+const TIER = detectQualityTier()
+
 // --- Renderer ---
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, TIER === 'HIGH' ? 2 : 1))
 renderer.toneMapping = THREE.ACESFilmicToneMapping
 renderer.toneMappingExposure = 1.2
-renderer.shadowMap.enabled = true
+renderer.shadowMap.enabled = TIER === 'HIGH'
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
 document.body.prepend(renderer.domElement)
 
@@ -36,17 +49,21 @@ camera.lookAt(0, 0, -10)
 
 const composer = new EffectComposer(renderer)
 composer.addPass(new RenderPass(scene, camera))
-composer.addPass(new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.7,   // strength
-  0.3,   // radius
-  0.55   // threshold
-))
+if (TIER === 'HIGH') {
+  composer.addPass(new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    0.7,   // strength
+    0.3,   // radius
+    0.55   // threshold
+  ))
+}
 
-const pmrem = new THREE.PMREMGenerator(renderer)
-scene.environment = pmrem.fromScene(new RoomEnvironment()).texture
-scene.environmentIntensity = 0.4
-pmrem.dispose()
+if (TIER === 'HIGH') {
+  const pmrem = new THREE.PMREMGenerator(renderer)
+  scene.environment = pmrem.fromScene(new RoomEnvironment()).texture
+  scene.environmentIntensity = 0.4
+  pmrem.dispose()
+}
 
 const CAM_BASE_X = 0
 const CAM_BASE_Y = 4
@@ -106,6 +123,7 @@ initInput(action => {
   if (gameState.status === 'TITLE' && (action === 'JUMP' || action === 'START')) {
     gameState.status = 'PLAYING'
     showScreen('PLAYING', gameState)
+    audioApi.startMusic()
     return
   }
   if (gameState.status !== 'PLAYING') return
@@ -119,7 +137,7 @@ initInput(action => {
     if (p.action === 'LANE_SWITCH') { p.queuedLane = next; return }
     p.targetLane = next; p.laneT = 0; p.action = 'LANE_SWITCH'
   } else if (action === 'JUMP') {
-    if (p.action !== 'JUMPING') { p.action = 'JUMPING'; p.yVelocity = JUMP_VELOCITY }
+    if (p.action !== 'JUMPING') { p.action = 'JUMPING'; p.yVelocity = JUMP_VELOCITY; audioApi.play('jump') }
   } else if (action === 'SLIDE') {
     if (p.action !== 'JUMPING' && p.action !== 'SLIDING') {
       p.action = 'SLIDING'; p.slideTimer = SLIDE_DURATION
@@ -139,6 +157,7 @@ window.addEventListener('game-restart', () => {
   playerApi = initPlayer(scene, gameState.skinColor)
   gameState.status = 'PLAYING'
   showScreen('PLAYING', gameState)
+  audioApi.startMusic()
 })
 
 // --- Loop ---
@@ -207,6 +226,7 @@ renderer.setAnimationLoop(() => {
           chargeWarnEl.style.display = 'none'
           gameState.status = 'GAME_OVER'
           showScreen('GAME_OVER', gameState)
+          audioApi.stopMusic()
         }
       }
     }
@@ -238,6 +258,7 @@ renderer.setAnimationLoop(() => {
           chargeWarnEl.style.display = 'none'
           gameState.status = 'GAME_OVER'
           showScreen('GAME_OVER', gameState)
+          audioApi.stopMusic()
         }
       }
     }

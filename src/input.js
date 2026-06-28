@@ -24,7 +24,7 @@ export function initInput(onAction) {
   window.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - touchStartX
     const dy = e.changedTouches[0].clientY - touchStartY
-    if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return
+    if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) { onAction('JUMP'); return }
     if (Math.abs(dx) > Math.abs(dy)) {
       onAction(dx > 0 ? 'RIGHT' : 'LEFT')
     } else {

@@ -201,7 +201,7 @@ renderer.setAnimationLoop(() => {
     const prevYPos = gameState.player.yPos
     playerApi.update(delta, gameState)
     if (prevYPos > 0.05 && gameState.player.yPos <= 0 && gameState.player.action !== 'SLIDING') {
-      gameState.cameraShake = { intensity: 0.06, duration: 0.1 }
+      gameState.cameraShake = { intensity: TIER === 'MED' ? 0.02 : 0.06, duration: 0.1 }
     }
     obstacleApi.update(delta, gameState)
     collectibleApi.update(delta, gameState)

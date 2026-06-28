@@ -48,19 +48,32 @@ function hologramSignA() {
     j.position.set(x, y, 0.1)
     group.add(j)
   })
-  // UI elements: bar graph
-  const uiMat = emissiveMat(0x002233, 0x00ccff, 1.2)
-  ;[0.5, 0.7, 0.4, 0.6, 0.8].forEach((h, i) => {
-    const bar = new THREE.Mesh(new THREE.BoxGeometry(0.18, h, 0.04), uiMat)
-    bar.position.set(-0.44 + i * 0.22, 0.55 + h / 2, 0.1)
-    group.add(bar)
+  // Hazard chevrons (↓ pointing down = "duck/danger ahead")
+  const chevMat = emissiveMat(0x331100, 0xff6600, 3)
+  ;[1.72, 1.42, 1.12].forEach((cy, ci) => {
+    const alpha = 1 - ci * 0.25
+    ;[[-0.55, 0], [0, -0.2], [0.55, 0]].forEach(([cx, offset]) => {
+      const seg = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.1, 0.04), chevMat)
+      seg.position.set(cx, cy + offset, 0.1)
+      seg.rotation.z = cx < 0 ? -0.6 : cx > 0 ? 0.6 : 0
+      seg.material = emissiveMat(0x331100, 0xff6600, 3 * alpha)
+      group.add(seg)
+    })
   })
-  // Status text lines (upper area)
-  ;[1.7, 1.55, 1.42].forEach(y => {
-    const line = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.055, 0.04), uiMat)
-    line.position.set(0, y, 0.1)
-    group.add(line)
-  })
+  // Central warning diamond
+  const warnMat = emissiveMat(0x220000, 0xff2200, 4)
+  const diamond = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.04), warnMat)
+  diamond.rotation.z = Math.PI / 4
+  diamond.position.set(0, 0.62, 0.1)
+  group.add(diamond)
+  // Exclamation bar inside diamond
+  const exMat = emissiveMat(0x111100, 0xffff00, 5)
+  const exBar = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.18, 0.05), exMat)
+  exBar.position.set(0, 0.65, 0.12)
+  group.add(exBar)
+  const exDot = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 0.05), exMat)
+  exDot.position.set(0, 0.52, 0.12)
+  group.add(exDot)
   group.userData.type = 'HOLOGRAM_SIGN'
   group.userData.avoidWith = 'JUMP'
   group.userData.time = 0
@@ -664,7 +677,7 @@ function wideWallA() {
   const group = new THREE.Group()
   const doorMat = emissiveMat(0x111111, 0x333333, 0.4)
   // Main door panel
-  const door = new THREE.Mesh(new THREE.BoxGeometry(2.9, 2.0, 0.14), doorMat)
+  const door = new THREE.Mesh(new THREE.BoxGeometry(5.5, 2.0, 0.14), doorMat)
   door.position.y = 1.0
   group.add(door)
   // Warning stripes (diagonal yellow-black pattern via horizontal alternating bands)
@@ -672,7 +685,7 @@ function wideWallA() {
   const warnBlack = emissiveMat(0x080808, 0x111100, 0.3)
   for (let i = 0; i < 8; i++) {
     const mat = i % 2 === 0 ? warnYellow : warnBlack
-    const stripe = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.22, 0.05), mat)
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.22, 0.05), mat)
     stripe.position.set(0, 0.15 + i * 0.23, 0.1)
     group.add(stripe)
   }
@@ -685,13 +698,13 @@ function wideWallA() {
   })
   // Frame
   const frameMat = emissiveMat(0x222222, 0x666666, 1)
-  ;[-1.46, 1.46].forEach(x => {
+  ;[-2.75, 2.75].forEach(x => {
     const post = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.1, 0.18), frameMat)
     post.position.set(x, 1.05, 0)
     group.add(post)
   })
   ;[0.0, 2.05].forEach(y => {
-    const bar = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.1, 0.18), frameMat)
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.1, 0.18), frameMat)
     bar.position.set(0, y, 0)
     group.add(bar)
   })
@@ -710,7 +723,7 @@ function wideWallB() {
   const group = new THREE.Group()
   // Generator posts at each end
   const postMat = emissiveMat(0x001133, 0x0044ff, 2)
-  ;[-1.5, 1.5].forEach(x => {
+  ;[-2.75, 2.75].forEach(x => {
     const post = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.1, 0.18), postMat)
     post.position.set(x, 1.05, 0)
     group.add(post)
@@ -726,13 +739,13 @@ function wideWallB() {
     color: 0x001133, emissive: 0x0055ff, emissiveIntensity: 1.5,
     transparent: true, opacity: 0.35, side: THREE.DoubleSide,
   })
-  const field = new THREE.Mesh(new THREE.PlaneGeometry(2.9, 2.0), fieldMat)
+  const field = new THREE.Mesh(new THREE.PlaneGeometry(5.5, 2.0), fieldMat)
   field.position.y = 1.0
   group.add(field)
   // Electric current lines (horizontal strips)
   const currentMat = emissiveMat(0x001155, 0x44aaff, 3)
   ;[0.4, 0.9, 1.4, 1.8].forEach(y => {
-    const line = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.03, 0.03), currentMat)
+    const line = new THREE.Mesh(new THREE.BoxGeometry(5.4, 0.03, 0.03), currentMat)
     line.position.set(0, y, 0.02)
     group.add(line)
   })
@@ -746,7 +759,7 @@ function wideHurdleA() {
   const group = new THREE.Group()
   const postMat = emissiveMat(0x222222, 0x555555, 0.8)
   // Support posts at each end
-  ;[-1.5, 1.5].forEach(x => {
+  ;[-2.75, 2.75].forEach(x => {
     const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.3, 0.12), postMat)
     post.position.set(x, 0.65, 0)
     group.add(post)
@@ -756,20 +769,20 @@ function wideHurdleA() {
   })
   // Horizontal scan beam arm
   const armMat = emissiveMat(0x003311, 0x00ff66, 2)
-  const arm = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.07, 0.07), armMat)
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.07, 0.07), armMat)
   arm.position.y = 1.2
   arm.name = 'pipe'  // reuse 'pipe' name for emissive pulse update
   group.add(arm)
   // Emitter nodes at arm ends
   const emitterMat = emissiveMat(0x002211, 0x00ff88, 3)
-  ;[-1.5, 1.5].forEach(x => {
+  ;[-2.75, 2.75].forEach(x => {
     const emitter = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.14, 0.14), emitterMat)
     emitter.position.set(x, 1.2, 0)
     group.add(emitter)
   })
   // Sweep indicator line (visual only — slightly above arm)
   const sweepMat = new THREE.MeshStandardMaterial({ color: 0x001100, emissive: 0x00ff44, emissiveIntensity: 1, transparent: true, opacity: 0.4 })
-  const sweep = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.18, 0.04), sweepMat)
+  const sweep = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.18, 0.04), sweepMat)
   sweep.position.y = 1.22
   group.add(sweep)
   group.userData.type = 'WIDE_HURDLE'
@@ -782,24 +795,24 @@ function wideHurdleB() {
   const group = new THREE.Group()
   const houseMat = emissiveMat(0x111111, 0x444444, 0.5)
   // Low-profile housing strip (flush to ground)
-  const housing = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.12, 0.3), houseMat)
+  const housing = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.12, 0.3), houseMat)
   housing.position.y = 0.06
   group.add(housing)
   // Vent grilles on housing top
   const ventMat = emissiveMat(0x220000, 0x660000, 0.8)
-  for (let i = -5; i <= 5; i++) {
+  for (let i = -10; i <= 10; i++) {
     const vent = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.03, 0.25), ventMat)
     vent.position.set(i * 0.26, 0.12, 0)
     group.add(vent)
   }
   // Scan line at 1.1 height
   const scanMat = emissiveMat(0x330000, 0xff2200, 3)
-  const scan = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.06, 0.06), scanMat)
+  const scan = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.06, 0.06), scanMat)
   scan.position.y = 1.1
   scan.name = 'pipe'  // reuse for pulse update
   group.add(scan)
   // Side indicator lights
-  ;[-1.45, 1.45].forEach(x => {
+  ;[-2.75, 2.75].forEach(x => {
     const ind = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.06), emissiveMat(0x330000, 0xff0000, 4))
     ind.position.set(x, 0.09, 0.16)
     group.add(ind)
@@ -829,18 +842,22 @@ function spinnerBotA() {
   strobe.position.set(0, 0.6, 0.16)
   strobe.name = 'strobe'
   group.add(strobe)
-  // Arm group — rotates around Y axis
+  // Arm group — rotates around Z axis (vertical wheel), mounted at shoulder level
   const armGroup = new THREE.Group()
-  armGroup.position.y = 0.75
+  armGroup.position.y = 0.65
   armGroup.name = 'spinArm'
-  // Two arm segments (opposite directions)
+  // Central hub at pivot joint
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.12, 8), emissiveMat(0x110022, 0xcc00ff, 3))
+  hub.rotation.x = Math.PI / 2
+  armGroup.add(hub)
+  // Two arm segments (opposite directions) — long enough to reach adjacent lanes
   ;[-1, 1].forEach(dir => {
-    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.06, 0.06), emissiveMat(0x220033, 0xaa00ff, 2))
-    arm.position.set(dir * 0.325, 0, 0)
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.09, 0.09), emissiveMat(0x220033, 0xaa00ff, 2))
+    arm.position.set(dir * 1.25, 0, 0)
     armGroup.add(arm)
     // Glowing tip
-    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), emissiveMat(0x330044, 0xff00ff, 4))
-    tip.position.set(dir * 0.65, 0, 0)
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 6), emissiveMat(0x330044, 0xff00ff, 4))
+    tip.position.set(dir * 2.5, 0, 0)
     armGroup.add(tip)
   })
   group.add(armGroup)
@@ -927,19 +944,29 @@ export const OBSTACLE_VARIANTS = {
 }
 
 export function calcSpinnerAABB(spinAngle) {
-  // Arm rotates on Y axis, extends along X. cosA = X span factor.
-  // Safe when arm points in Z direction (toward/away from player) — small X profile.
+  // Arm rotates on Z axis (vertical wheel, pivot at y=1.0).
+  // cosA = X span factor. sinA = Y displacement from pivot.
+  // Safe when arm points up or down (cosA near 0) — player can SLIDE (arm high) or JUMP (arm low).
   const cosA = Math.cos(spinAngle)
+  const sinA = Math.sin(spinAngle)
+  const ARM_HALF = 2.5
+  const CENTER_Y = 0.65
   if (Math.abs(cosA) < 0.3) {
-    return { minX: -0.65, maxX: 0.65, minY: 99, maxY: 100, minZ: -0.15, maxZ: 0.15 }
+    return { minX: -ARM_HALF, maxX: ARM_HALF, minY: 99, maxY: 100, minZ: -0.15, maxZ: 0.15 }
   }
-  return { minX: -0.65, maxX: 0.65, minY: 0.65, maxY: 1.05, minZ: -0.15, maxZ: 0.15 }
+  return {
+    minX: -ARM_HALF * Math.abs(cosA),
+    maxX: ARM_HALF * Math.abs(cosA),
+    minY: Math.max(0, CENTER_Y - ARM_HALF * Math.abs(sinA) - 0.05),
+    maxY: CENTER_Y + ARM_HALF * Math.abs(sinA) + 0.05,
+    minZ: -0.15, maxZ: 0.15,
+  }
 }
 
 export function tickChargerBot(state, delta, speed, objZ) {
   const s = { ...state, time: state.time + delta }
   if (s.chargeState === 'APPROACH') {
-    if (objZ > -20) { s.chargeState = 'WINDUP'; return { newState: s, dz: 0, vibX: 0 } }
+    if (objZ > -35) { s.chargeState = 'WINDUP'; return { newState: s, dz: 0, vibX: 0 } }
     return { newState: s, dz: speed * delta, vibX: 0 }
   }
   if (s.chargeState === 'WINDUP') {

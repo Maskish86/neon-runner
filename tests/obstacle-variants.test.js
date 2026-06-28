@@ -68,13 +68,13 @@ describe('tickChargerBot', () => {
   const baseState = { chargeState: 'APPROACH', windupTimer: 0, chargeTimer: 0, time: 0 }
 
   it('moves normally during APPROACH', () => {
-    const { dz, vibX } = tickChargerBot(baseState, 0.016, 12, -30)
+    const { dz, vibX } = tickChargerBot(baseState, 0.016, 12, -40)
     expect(dz).toBeCloseTo(0.016 * 12)
     expect(vibX).toBe(0)
   })
 
-  it('triggers WINDUP when objZ > -20', () => {
-    const { newState } = tickChargerBot(baseState, 0.016, 12, -19)
+  it('triggers WINDUP when objZ > -35', () => {
+    const { newState } = tickChargerBot(baseState, 0.016, 12, -34)
     expect(newState.chargeState).toBe('WINDUP')
   })
 

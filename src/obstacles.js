@@ -217,12 +217,17 @@ export function initObstacles(scene, chargeWarnEl) {
       if (type === 'SPINNER_BOT') {
         obj.userData.spinAngle += delta * obj.userData.spinSpeed
         const spinArm = obj.getObjectByName('spinArm')
-        if (spinArm) spinArm.rotation.y = obj.userData.spinAngle
+        if (spinArm) spinArm.rotation.z = obj.userData.spinAngle
         obj.userData.hazardAABB = calcSpinnerAABB(obj.userData.spinAngle)
-        // Strobe flashes when arm spans across lane (|cos| > 0.7 = danger zone)
+        // Strobe: red flash when arm in danger zone (|cosA|>0.7), dims in safe window
         const strobe = obj.getObjectByName('strobe')
         if (strobe) {
-          const inDanger = Math.abs(Math.cos(obj.userData.spinAngle)) > 0.7
+          const cosA = Math.cos(obj.userData.spinAngle)
+          const sinA = Math.sin(obj.userData.spinAngle)
+          const inDanger = Math.abs(cosA) > 0.7
+          // Color shifts: orange-red when arm sweeping low (jump!), cyan when arm sweeping high (slide!)
+          const armHigh = sinA > 0.5
+          strobe.material.emissive.setHex(armHigh ? 0x00ffff : 0xff2200)
           strobe.material.emissiveIntensity = inDanger ? 4 : 0.5
         }
       }

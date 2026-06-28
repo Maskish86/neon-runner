@@ -879,10 +879,10 @@ function spinnerBotA() {
 }
 function chargerBotA() {
   const group = new THREE.Group()
-  const bodyMat = emissiveMat(0x331100, 0xff6600, 1.5)
+  const bodyMat = emissiveMat(0x330022, 0xff0088, 1.5)
   // Forward-leaning base legs (tilted forward)
   ;[-0.15, 0.15].forEach(x => {
-    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.32, 0.18), emissiveMat(0x220a00, 0xff4400, 1))
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.32, 0.18), emissiveMat(0x220011, 0xcc0066, 1))
     leg.position.set(x, 0.16, -0.06)
     leg.rotation.x = -0.2
     group.add(leg)
@@ -894,21 +894,21 @@ function chargerBotA() {
   torso.name = 'chargerBody'
   group.add(torso)
   // Booster nozzles on chest (facing forward = -Z direction)
-  const nozzleMat = emissiveMat(0x331500, 0xff8800, 2)
+  const nozzleMat = emissiveMat(0x330022, 0xff00aa, 2)
   ;[-0.14, 0, 0.14].forEach(x => {
     const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.07, 0.14, 8), nozzleMat)
     nozzle.rotation.x = Math.PI / 2
     nozzle.position.set(x, 0.58, -0.26)
     group.add(nozzle)
     // Nozzle glow
-    const glow = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.06, 8), emissiveMat(0x220800, 0xff4400, 4))
+    const glow = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.06, 8), emissiveMat(0x220011, 0xff0066, 4))
     glow.rotation.x = Math.PI / 2
     glow.position.set(x, 0.58, -0.32)
     group.add(glow)
   })
   // Forward-swept shoulder guards
   ;[-0.38, 0.38].forEach(x => {
-    const guard = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.22, 0.35), emissiveMat(0x221100, 0xff5500, 1.5))
+    const guard = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.22, 0.35), emissiveMat(0x220011, 0xff0077, 1.5))
     guard.position.set(x, 0.72, -0.1)
     guard.rotation.x = -0.2
     group.add(guard)
@@ -917,7 +917,7 @@ function chargerBotA() {
   const head = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.2, 0.3), bodyMat)
   head.position.set(0, 0.94, -0.04)
   group.add(head)
-  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.07, 0.04), emissiveMat(0x330500, 0xff2200, 4))
+  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.07, 0.04), emissiveMat(0x330011, 0xff0044, 4))
   visor.position.set(0, 0.94, 0.12)
   group.add(visor)
   group.userData.type = 'CHARGER_BOT'

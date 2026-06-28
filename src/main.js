@@ -44,8 +44,22 @@ scene.fog = new THREE.FogExp2(0x0a0018, 0.008)
 scene.add(new THREE.AmbientLight(0x221133, 1.0))
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300)
-camera.position.set(0, 4, 8)
-camera.lookAt(0, 0, -10)
+
+function applyCameraForAspect() {
+  const aspect = window.innerWidth / window.innerHeight
+  if (aspect < 0.75) {
+    // Portrait phone: pull back + widen FOV so all 3 lanes fit
+    camera.fov = 85
+    camera.position.set(0, 5, 12)
+    camera.lookAt(0, 0, -6)
+  } else {
+    camera.fov = 60
+    camera.position.set(0, 4, 8)
+    camera.lookAt(0, 0, -10)
+  }
+  camera.updateProjectionMatrix()
+}
+applyCameraForAspect()
 
 const composer = new EffectComposer(renderer)
 composer.addPass(new RenderPass(scene, camera))
@@ -66,11 +80,12 @@ if (TIER === 'HIGH') {
 }
 
 const CAM_BASE_X = 0
-const CAM_BASE_Y = 4
+let CAM_BASE_Y = camera.position.y
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight
-  camera.updateProjectionMatrix()
+  applyCameraForAspect()
+  CAM_BASE_Y = camera.position.y
   renderer.setSize(window.innerWidth, window.innerHeight)
   composer.setSize(window.innerWidth, window.innerHeight)
 })

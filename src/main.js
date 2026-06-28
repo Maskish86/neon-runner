@@ -81,9 +81,11 @@ if (TIER === 'HIGH') {
 
 const CAM_BASE_X = 0
 let CAM_BASE_Y = camera.position.y
+let isPortrait = window.innerWidth / window.innerHeight < 0.75
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight
+  isPortrait = window.innerWidth / window.innerHeight < 0.75
   applyCameraForAspect()
   CAM_BASE_Y = camera.position.y
   renderer.setSize(window.innerWidth, window.innerHeight)
@@ -201,7 +203,7 @@ renderer.setAnimationLoop(() => {
     const prevYPos = gameState.player.yPos
     playerApi.update(delta, gameState)
     if (prevYPos > 0.05 && gameState.player.yPos <= 0 && gameState.player.action !== 'SLIDING') {
-      gameState.cameraShake = { intensity: TIER === 'MED' ? 0.02 : 0.06, duration: 0.1 }
+      gameState.cameraShake = { intensity: isPortrait ? 0.02 : 0.06, duration: 0.1 }
     }
     obstacleApi.update(delta, gameState)
     collectibleApi.update(delta, gameState)

@@ -23,7 +23,7 @@ Vite + Vanilla JS ES modules + Three.js r165. No framework. Single HTML page. Al
 
 **Collision system:** All collidables expose `getAABB() → THREE.Box3`. `boxesOverlap(a, b)` uses strict `<`/`>` (touching edges = false). Obstacles use `userData.hazardAABB` (local-space offsets) applied at runtime: `pos.x + hz.minX` etc. — never `setFromObject` on obstacle groups. The Z collision window is `−2 ≤ obs.z ≤ 3`.
 
-**Object pooling:** `initObstacles` pre-builds all pool slots at init (no mesh rebuild on spawn). `spawnOne()` resets position/state only. Pool size 12, cycling through 5 obstacle types. Collectibles have a separate shard pool (30) + 4 power-up slots.
+**Object pooling:** `initObstacles` pre-builds all pool slots at init (no mesh rebuild on spawn). `spawnOne()` resets position/state only. Pool size 24, 19 variant factories across 9 obstacle mechanics. Collectibles have a separate shard pool (30) + 4 power-up slots.
 
 **Score:** `gameState.score = Math.floor(gameState.distance) + gameState.shardBonus`. Never set score directly — add to `shardBonus` for shard pickups.
 

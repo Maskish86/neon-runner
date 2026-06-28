@@ -85,7 +85,7 @@ function makeGameState(skinColor = 'CYAN') {
 
 let gameState = makeGameState()
 let playerApi = initPlayer(scene, gameState.skinColor)
-let obstacleApi = initObstacles(scene)
+let obstacleApi  // initialized after chargeWarnEl is ready
 const droneApi = initDrone(scene)
 const particleApi = initParticles(scene)
 
@@ -93,6 +93,13 @@ const audioApi = initAudio()
 
 initHud()
 showScreen('TITLE', gameState, (skin) => { gameState.skinColor = skin })
+
+const chargeWarnEl = document.createElement('div')
+chargeWarnEl.id = 'charge-warn'
+chargeWarnEl.textContent = '⚡ CHARGE'
+chargeWarnEl.style.display = 'none'
+document.getElementById('hud').appendChild(chargeWarnEl)
+obstacleApi = initObstacles(scene, chargeWarnEl)
 
 // --- Input ---
 initInput(action => {
@@ -196,6 +203,8 @@ renderer.setAnimationLoop(() => {
         gameState.comboTimer = 0
         if (gameState.hp <= 0) {
           droneApi.reset()
+          obstacleApi.reset()
+          chargeWarnEl.style.display = 'none'
           gameState.status = 'GAME_OVER'
           showScreen('GAME_OVER', gameState)
         }
@@ -225,6 +234,8 @@ renderer.setAnimationLoop(() => {
         gameState.comboTimer = 0
         if (gameState.hp <= 0) {
           droneApi.reset()
+          obstacleApi.reset()
+          chargeWarnEl.style.display = 'none'
           gameState.status = 'GAME_OVER'
           showScreen('GAME_OVER', gameState)
         }

@@ -121,3 +121,19 @@ canvas { display: block; }
 .combo-pop {
   animation: combo-pop 0.15s ease-out forwards;
 }
+
+#charge-warn {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 16px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #fff;
+  background: rgba(0, 150, 200, 0.8);
+  box-shadow: 0 0 12px #00ccff;
+}
